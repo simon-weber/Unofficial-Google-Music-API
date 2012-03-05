@@ -39,6 +39,7 @@ from session import WC_Session, MM_Session
 from .protocol import WC_Protocol, MM_Protocol
 from utils import utils
 from utils.apilogging import UsesLog
+from models.track import Track
 
 class Api(UsesLog):
     def __init__(self):
@@ -197,14 +198,10 @@ class Api(UsesLog):
         return self._wc_call("deletesong", song_ids)
 
     def get_all_songs(self):
-        """Returns a list of `song dictionaries`__.
-        
-        __ `GM Metadata Format`_
+        """Returns a list of Track objects.
         """
-
-
-
         library = []
+        tracks = []
 
         lib_chunk = self._wc_call("loadalltracks")
     
@@ -215,7 +212,11 @@ class Api(UsesLog):
 
         library += lib_chunk['playlist']
 
-        return library
+        for tr in library:
+            track = Track(tr)
+            tracks.append(track)
+
+        return tracks
 
     def get_playlist_songs(self, playlist_id):
         """Returns a list of `song dictionaries`__, which include `entryId` keys for the given playlist.
