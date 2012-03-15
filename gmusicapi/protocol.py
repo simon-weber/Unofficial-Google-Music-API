@@ -29,13 +29,16 @@ from uuid import getnode as getmac
 from socket import gethostname
 import base64
 import hashlib
+import json
 
 from mutagen.easyid3 import EasyID3
 from mutagen.mp3 import MP3
 
 import metadata_pb2
 from utils import utils
-from utils.apilogging import LogController
+from utils.apilogging import LogController #TODO this is a hack
+from models.track import Track, TrackList
+from models.playlist import Playlist, PlaylistList, PlaylistEntry, PlaylistEntryList
 
 
 supported_filetypes = ("mp3")
@@ -295,8 +298,6 @@ class Metadata_Expectations:
 class WC_Protocol:
     """Holds the protocol for all suppported web client interactions."""
 
-    log = LogController.get_logger("WC_Protocol")
-
     #Shared response schemas.
     song_schema = {"type": "object",
 
@@ -498,7 +499,6 @@ class WC_Protocol:
         def build_transaction(cls, songs):
             """:param songs: a list of dictionary representations of songs."""
         
-
             #Warn about metadata changes that may cause problems.
             #If you change the interface in api, you can warn about changing bad categories, too.
             #Something like safelychange(song, entries) where entries are only those you want to change.
@@ -507,7 +507,7 @@ class WC_Protocol:
                 for key in song:
                     allowed_values = Metadata_Expectations.get_expectation(key).allowed_values
                     if allowed_values and song[key] not in allowed_values:
-                        log.warning("setting id (%s)[%s] to a dangerous value. Check metadata expectations in protocol.py", song_md["id"], key)                        
+                        LogController.get_logger("modifyentries").warning("setting key {0} to unallowed value {1} for id {2}. Check metadata expectations in protocol.py".format(key, song[key], song["id"]))
                         
 
             req = {"entries": songs}
@@ -786,3 +786,118 @@ class MM_Protocol():
             sessions.append((filename, upload.serverId, payload))
 
         return sessions
+
+
+class SJ_Protocol:
+    class MusicURL:
+        BASE_URL = 'https://www.googleapis.com/sj/v1beta1/'
+
+        @staticmethod
+        def tracks(trackid=None):
+            url = SJ_Protocol.MusicURL.BASE_URL+'tracks'
+            if trackid:
+                url += '/%s' % trackid
+            return url
+
+        @staticmethod
+        def track_audio(trackid, bitrate=256):
+            return 'https://music.google.com/music/play?songid=%s&targetkbps=%d&pt=e' % (trackid, bitrate)
+
+        @staticmethod
+        def playlists(plid=None):
+            url = SJ_Protocol.MusicURL.BASE_URL+'playlists'
+            if plid:
+                url += '/%s' % plid
+            return url
+
+        @staticmethod
+        def playlist_entries(plid):
+            return SJ_Protocol.MusicURL.BASE_URL+'plentries?plid=%s' % plid
+
+        @staticmethod
+        def playlist_entry(pleid):
+            return SJ_Protocol.MusicURL.BASE_URL+'plentries/%s' % pleid
+
+        @staticmethod
+        def playlist_batch():
+            return SJ_Protocol.MusicURL.BASE_URL+'playlistbatch'
+
+        @staticmethod
+        def plentries_batch():
+            return SJ_Protocol.MusicURL.BASE_URL+'plentriesbatch'
+
+    def __init__(self):
+        pass
+
+    def _handle_mutate_response(self, jsobj):
+        if not 'mutate_response' in jsobj:
+            return True
+
+        ids = []
+
+        mutations = jsobj['mutate_response']
+        for mutation in mutations:
+            if mutation['response_code'] != 'OK':
+                raise ValueError
+            if 'id' in mutation:
+                ids.append(mutation['id'])
+
+        return ids
+
+    def _kind_to_model(self, kind):
+        if kind == Track.kind():
+            return Track
+        elif kind == TrackList.kind():
+            return TrackList
+        elif kind == Playlist.kind():
+            return Playlist
+        elif kind == PlaylistList.kind():
+            return PlaylistList
+        elif kind == PlaylistEntry.kind():
+            return PlaylistEntry
+        elif kind == PlaylistEntryList.kind():
+            return PlaylistEntryList
+        else:
+            raise ValueError
+
+    def tracks(self, response):
+        jsdata = json.loads(response)
+
+        tl = self._kind_to_model(jsdata['kind'])(jsdata)
+        if type(tl) is TrackList:
+            return tl.items
+        elif type(tl) is Track:
+            return tl
+
+    def playlists(self, response):
+        jsdata = json.loads(response)
+
+        pl = self._kind_to_model(jsdata['kind'])(jsdata)
+
+        if type(pl) is PlaylistList:
+            return pl.items
+        elif type(pl) is Playlist:
+            return pl
+
+    def playlist_entries(self, response):
+        jsdata = json.loads(response)
+
+        el = self._kind_to_model(jsdata['kind'])(jsdata)
+
+        if type(el) is PlaylistEntryList:
+            return el.items
+        elif type(el) is PlaylistEntry:
+            return el
+
+    def playlist_entry(self, response):
+        return self.playlist_entries(response)
+
+    def playlist_batch(self, response):
+        jsdata = json.loads(response)
+
+        return self._handle_mutate_response(jsdata)
+
+    def plentries_batch(self, response):
+        jsdata = json.loads(response)
+
+        return self._handle_mutate_response(jsdata)

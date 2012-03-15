@@ -35,11 +35,17 @@ from mutagen.easyid3 import EasyID3
 from mutagen.mp3 import MP3
 import validictory
 
-from session import WC_Session, MM_Session
-from .protocol import WC_Protocol, MM_Protocol
+from session import WC_Session, MM_Session, SJ_Session
+from protocol import WC_Protocol, MM_Protocol, SJ_Protocol
 from utils import utils
 from utils.apilogging import UsesLog
 from models.track import Track
+from models.playlist import Playlist
+
+class SkyjamException(Exception):
+    def __init__(self, message):
+        Exception.__init__(self, message)
+        self.msg = message
 
 class Api(UsesLog):
     def __init__(self):
@@ -49,9 +55,12 @@ class Api(UsesLog):
         self.mm_session = MM_Session()
         self.mm_protocol = MM_Protocol()
 
+        self.sj_session = SJ_Session()
+        self.sj_protocol = SJ_Protocol()
+
         self.init_logger()
 
-        #There seems to be a bug in validictory.
+        #TODO get rid of this; blank problem is fixed in protocol.py
         self.validate = validictory.SchemaValidator(blank_by_default=True).validate
 
     #---
@@ -74,6 +83,7 @@ class Api(UsesLog):
 
         self.wc_session.login(email, password)
         self.mm_session.login(email, password)
+        self.sj_session.login(email, password)
 
 
         if self.is_authenticated():
@@ -91,6 +101,7 @@ class Api(UsesLog):
 
         self.wc_session.logout()
         self.mm_session.logout()
+        self.sj_session.logout()
 
         self.log.info("logged out")
 
@@ -217,6 +228,113 @@ class Api(UsesLog):
             tracks.append(track)
 
         return tracks
+
+
+    def get_sj_tracks(self):
+        return self._sj_call('tracks')
+
+    def get_sj_track(self, track_id):
+        return self._sj_call('tracks', None, track_id)
+
+    def get_sj_track_audio(self, track, bitrate=256):
+        if type(track) is not Track: raise TypeError
+
+        url = SJ_Protocol.MusicURL.track_audio(track.id, bitrate)
+
+        err, resp = self.sj_session.audio_request(url)
+        if err is not None:
+            raise SkyjamException('Error code %d' % err)
+
+        return resp
+
+    def get_sj_playlists(self):
+        return self._sj_call('playlists')
+
+    def get_sj_playlist(self, playlist_id):
+        return self._sj_call('playlists', None, playlist_id)
+
+    def sj_create_playlist(self, playlist_name):
+        """Create playlist.
+
+        :param name: The name of the new playlist.
+        """
+        if type(playlist_name) is not str: raise TypeError
+
+        data =  {'mutations': [{'create': {'name': playlist_name}}]}
+        jsdata = json.dumps(data)
+
+        plid = self._sj_call('playlist_batch', jsdata)
+        assert len(plid) is 1
+
+        return self._sj_call('playlists', None, plid[0])
+
+    def sj_update_playlist(self, playlists):
+        """Update playlist(s).
+
+        :param playlists: A Playlist model, or an array of Playlist models.
+        """
+        if type(playlists) is not list:
+            playlists = [playlists]
+
+        mutations = []
+        for plist in playlists:
+            if type(plist) is not Playlist: raise TypeError
+
+            mutations.append(plist.mutation_update())
+
+        data =  { 'mutations': mutations }
+        jsdata = json.dumps(data)
+
+        ids = self._sj_call('playlist_batch', jsdata)
+
+        lists = []
+        for i in ids:
+            plist = self._sj_call('playlists', None, i)
+            lists.append(plist)
+
+        return lists
+
+    def sj_delete_playlist(self, playlists):
+        """Delete playlist(s).
+
+        :param playlists: A Playlist model, or an array of Playlist models.
+        """
+        if type(playlists) is not list:
+            playlists = [playlists]
+
+        mutations = []
+        for plist in playlists:
+            if type(plist) is not Playlist: raise TypeError
+
+            mutations.append(plist.mutation_delete())
+
+        data =  { 'mutations': mutations }
+        jsdata = json.dumps(data)
+
+        return self._sj_call('playlist_batch', jsdata)
+
+    def sj_add_to_playlist(self, playlist, tracks):
+        """Adds tracks to a playlist.
+
+        :param playlist: The Playlist model to which the songs will be added.
+        :param tracks: A list of Tracks.
+        """
+        if type(playlist) is not Playlist: raise TypeError
+
+        if type(tracks) is not list:
+            tracks = [tracks]
+
+        mutations = []
+        for t in tracks:
+            if type(t) is not Track: raise TypeError
+
+            mutations.append({'create': {'playlistId': playlist.id, 'trackId': t.id}})
+
+        data =  { 'mutations': mutations }
+        jsdata = json.dumps(data)
+
+        return self._sj_call('plentries_batch', jsdata)
+
 
     def get_playlist_songs(self, playlist_id):
         """Returns a list of `song dictionaries`__, which include `entryId` keys for the given playlist.
@@ -425,6 +543,17 @@ class Api(UsesLog):
             self.log.debug("wc_call response <suppressed>")
 
         return res
+
+    def _sj_call(self, resource, data=None, *args):
+        url_f = getattr(SJ_Protocol.MusicURL, resource)
+        url = url_f(*args)
+
+        err, resp = self.sj_session.request(url, data)
+        if err is not None:
+            raise SkyjamException('Error code %d' % err)
+
+        parse_f = getattr(self.sj_protocol, resource)
+        return parse_f(resp)
 
 
     #---

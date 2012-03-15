@@ -1,7 +1,11 @@
 The Unofficial Google Music Api
 *******************************
 
+The api itself is hosted at GitHub: https://github.com/simon-weber/Unofficial-Google-Music-API.
+
+.. currentmodule:: gmusicapi
 .. automodule:: gmusicapi.api
+
 
 
 Api Features

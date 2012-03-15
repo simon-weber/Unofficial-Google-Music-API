@@ -30,10 +30,28 @@ from urllib2  import *
 from urlparse import *
 import httplib
 
-from decorator import decorator
+try:
+    from decorator import decorator
+except ImportError:
+    from utils.utils import mock_decorator as decorator
+
 import mechanize
 
 from utils.apilogging import UsesLog
+from utils.clientlogin import ClientLogin
+
+try:
+    # These are for python3 support
+    from urllib.request import urlopen, Request
+    from urllib.error import HTTPError
+    from urllib.parse import urlencode
+    unistr = str
+except ImportError:
+    # Fallback to python2
+    from urllib2 import urlopen, Request
+    from urllib2 import HTTPError
+    from urllib import urlencode
+    unistr = unicode
 
 
 class AlreadyLoggedIn(exceptions.Exception):
@@ -188,26 +206,13 @@ class MM_Session:
         if self.sid:
             raise AlreadyLoggedIn
 
-        payload = {
-            'Email': email,
-            'Passwd': password,
-            'service': 'sj',
-            'accountType': 'GOOGLE'
-        }
-        r = urllib.urlopen("https://google.com/accounts/ClientLogin", 
-                            urllib.urlencode(payload)).read()
+        client = ClientLogin(email, password, 'sj')
+        self.sid = client.get_sid_token()
 
-        first = r.split("\n")[0]
-
-        #Bad auth will return Error=BadAuthentication\n
-
-        if first.split("=")[0] == "SID":
-            self.sid = first
-            #self.uauthresp.ParseFromString(self.protopost("upauth", self.uauth))
-            #self.clientstateresp.ParseFromString(self.protopost("clientstate", self.clientstate))
-            return True
-        else:
+        if self.sid is None:
             return False
+
+        return True
 
 
     def logout(self):
@@ -223,7 +228,7 @@ class MM_Session:
         """
 
         self.android.request("POST", "/upsj/"+path, proto.SerializeToString(), {
-            "Cookie": self.sid,
+            "Cookie": ('SID=%s' % self.sid),
             "Content-Type": "application/x-google-protobuf"
         })
         r = self.android.getresponse()
@@ -237,10 +242,86 @@ class MM_Session:
         if not headers:
             headers = {
                 "Content-Type": "application/x-www-form-urlencoded", #? shouldn't it be json? but that's what the google client sends
-                "Cookie": self.sid}
+                "Cookie": ('SID=%s' % self.sid)}
 
         self.jumper.request("POST", url, encoded_data, headers)
 
         return self.jumper.getresponse()
 
 
+class SJ_Session:
+    """A session using the SkyJam Service API."""
+
+    def __init__(self):
+        self.client = None
+        self.cookie = None
+
+    def _get_cookie(self):
+        header = {'Authorization': 'GoogleLogin auth=%s' % self.client.get_auth_token()}
+
+        req = Request('https://music.google.com/music/listen?u=0', None, header)
+        resp_obj = urlopen(req)
+        info = resp_obj.info()
+
+        cookies = dict(s.split(';', 1)[0].split('=', 1) for s in info.getheaders('Set-Cookie'))
+        if 'sjsaid' not in cookies:
+            raise KeyError
+
+        self.cookie = cookies['sjsaid']
+
+
+    def login(self, email, password):
+        self.client = ClientLogin(email, password, 'sj')
+
+        if self.client.get_auth_token() is None:
+            return False
+
+        self._get_cookie()
+
+        return True
+
+    def logout(self):
+        self.client = None
+
+    def request(self, url, data=None, headers={}):
+        if not data:
+            data = None
+        else:
+            if type(data) is not str:
+                data = urlencode(data)
+            data = data.encode('utf8')
+
+        if not 'Content-Type' in headers:
+            headers['Content-Type'] = 'application/json'
+        headers['Authorization'] = 'GoogleLogin auth=%s' % self.client.get_auth_token()
+
+        req = Request(url, data, headers)
+        err = None
+
+        try:
+            resp_obj = urlopen(req)
+        except HTTPError as e:
+            err = e.code
+            return err, e.read()
+        resp = resp_obj.read()
+        resp_obj.close()
+        return None, unistr(resp, encoding='utf8')
+
+    def audio_request(self, url, headers={}):
+        if not 'Content-Type' in headers:
+            headers['Content-Type'] = 'audio/mp3'
+        headers['Authorization'] = 'GoogleLogin auth=%s' % self.client.get_auth_token()
+        headers['Cookie'] = 'sjsaid=%s' % self.cookie
+
+        req = Request(url, None, headers)
+        err = None
+
+        try:
+            resp_obj = urlopen(req)
+        except HTTPError as e:
+            err = e.code
+            return err, e.read()
+        resp = resp_obj.read()
+        resp_obj.close()
+
+        return None, resp

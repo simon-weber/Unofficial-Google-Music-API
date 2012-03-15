@@ -17,12 +17,14 @@
 #You should have received a copy of the GNU General Public License
 #along with gmusicapi.  If not, see <http://www.gnu.org/licenses/>.
 
-class Track(object):
+from base import ModelBase
+
+class Track(ModelBase):
     @staticmethod
     def kind():
         return 'sj#track'
 
-    def __init__(self):
+    def __init__(self, jsdata=None):
         self._album = None
         self._albumArtRef = None
         self._albumArtist = None
@@ -48,6 +50,8 @@ class Track(object):
         self._trackType = None
         self._year = None
 
+        ModelBase.__init__(self, jsdata)
+
     @property
     def album(self):
         """The name of this track's album."""
@@ -55,7 +59,8 @@ class Track(object):
 
     @album.setter
     def album(self, value):
-        assert type(value) is str
+        if type(value) is not str: raise TypeError
+        self._dirtyProps.add('album')
         self._album = value
 
 
@@ -74,7 +79,8 @@ class Track(object):
 
     @albumArtist.setter
     def albumArtist(self, value):
-        assert type(value) is str
+        if type(value) is not str: raise TypeError
+        self._dirtyProps.add('albumArtist')
         self._albumArtist = value
 
 
@@ -94,7 +100,8 @@ class Track(object):
 
     @artist.setter
     def artist(self, value):
-        assert type(value) is str
+        if type(value) is not str: raise TypeError
+        self._dirtyProps.add('artist')
         self._artist = value
 
 
@@ -106,7 +113,8 @@ class Track(object):
 
     @beatsPerMinute.setter
     def beatsPerMinute(self, value):
-        assert type(value) is int
+        if type(value) is not int: raise TypeError
+        self._dirtyProps.add('beatsPerMinute')
         self._beatsPerMinute = value
 
 
@@ -118,7 +126,8 @@ class Track(object):
 
     @comment.setter
     def comment(self, value):
-        assert type(value) is str
+        if type(value) is not str: raise TypeError
+        self._dirtyProps.add('comment')
         self._comment = value
 
 
@@ -130,7 +139,8 @@ class Track(object):
 
     @composer.setter
     def composer(self, value):
-        assert type(value) is str
+        if type(value) is not str: raise TypeError
+        self._dirtyProps.add('composer')
         self._composer = value
 
 
@@ -150,7 +160,8 @@ class Track(object):
 
     @discNumber.setter
     def discNumber(self, value):
-        assert type(value) is int
+        if type(value) is not int: raise TypeError
+        self._dirtyProps.add('discNumber')
         self._discNumber = value
 
 
@@ -162,7 +173,8 @@ class Track(object):
 
     @durationMillis.setter
     def durationMillis(self, value):
-        assert type(value) is int
+        if type(value) is not int: raise TypeError
+        self._dirtyProps.add('durationMillis')
         self._durationMillis = value
 
 
@@ -174,7 +186,8 @@ class Track(object):
 
     @estimatedSize.setter
     def estimatedSize(self, value):
-        assert type(value) is int
+        if type(value) is not int: raise TypeError
+        self._dirtyProps.add('estimatedSize')
         self._estimatedSize = value
 
 
@@ -186,7 +199,8 @@ class Track(object):
 
     @genre.setter
     def genre(self, value):
-        assert type(value) is str
+        if type(value) is not str: raise TypeError
+        self._dirtyProps.add('genre')
         self._genre = value
 
 
@@ -222,7 +236,9 @@ class Track(object):
 
     @rating.setter
     def rating(self, value):
-        assert type(value) is str or type(value) is int
+        if type(value) is not str and type(value) is not int:
+            raise TypeError
+        self._dirtyProps.add('rating')
         self._rating = str(value)
 
 
@@ -250,7 +266,8 @@ class Track(object):
 
     @title.setter
     def title(self, value):
-        assert type(value) is str
+        if type(value) is not str: raise TypeError
+        self._dirtyProps.add('title')
         self._title = value
 
 
@@ -262,7 +279,8 @@ class Track(object):
 
     @totalDiscCount.setter
     def totalDiscCount(self, value):
-        assert type(value) is int
+        if type(value) is not int: raise TypeError
+        self._dirtyProps.add('totalDiscCount')
         self._totalDiscCount = value
 
 
@@ -274,7 +292,8 @@ class Track(object):
 
     @trackNumber.setter
     def trackNumber(self, value):
-        assert type(value) is int
+        if type(value) is not int: raise TypeError
+        self._dirtyProps.add('trackNumber')
         self._trackNumber = value
 
 
@@ -294,14 +313,13 @@ class Track(object):
 
     @year.setter
     def year(self, value):
-        assert type(value) is int
+        if type(value) is not int: raise TypeError
         self._year = value
 
 
 
     def from_json(self, jsobj):
-        if jsobj['kind']:
-            assert jsobj['kind'] == Track.kind()
+        ModelBase.from_json(self, jsobj)
 
         for key, value in jsobj.iteritems():
             if key == 'kind':
@@ -310,8 +328,26 @@ class Track(object):
             setattr(self, ('_%s' % key), value)
 
 
+    def mutation_update(self):
+        mutate = {}
+        mutate['id'] = self._id
 
-class TrackList(object):
+        for prop in self._dirtyProps:
+            mutate[prop] = getattr(self, ('_%s' % prop))
+
+        self._dirtyProps.clear()
+
+        return {'update': mutate}
+
+    def mutation_delete(self):
+        mutate = {}
+        mutate['id'] = self._id
+
+        return {'delete': mutate}
+
+
+
+class TrackList(ModelBase):
     @staticmethod
     def kind():
         return 'sj#trackList'
@@ -320,8 +356,7 @@ class TrackList(object):
         self._nextPageToken = None
         self._items = []
 
-        if jsdata:
-            self.from_json(jsdata)
+        ModelBase.__init__(self, jsdata)
 
     @property
     def nextPageToken(self):
@@ -332,8 +367,7 @@ class TrackList(object):
         return self._items
 
     def from_json(self, jsobj):
-        if jsobj['kind']:
-            assert jsobj['kind'] == TrackList.kind()
+        ModelBase.from_json(self, jsobj)
 
         if 'nextPageToken' in jsobj:
             self._nextPageToken = jsobj['nextPageToken']
