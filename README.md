@@ -1,6 +1,6 @@
 #gmusicapi: an unofficial Python API for Google Play Music
 
-The project is not supported nor endorsed by Google. I'll be interning for Google this summer, so to avoid conflicts of interest I'll stop contributing sometime in May. Get in touch if you're interested in taking over maintenance.
+The project is not supported nor endorsed by Google. 
 
 **Respect Google in your use of the API**. Use common sense (protocol compliance, reasonable load, etc) and don't ruin the fun for everyone else.
 
@@ -63,7 +63,7 @@ To check that everything is set up correctly, you can run the test suite: `pytho
 
 gmusicapi.api.Api is the user-facing interface. The provided example.py should be enough to get you started. For more information, see the [documentation](http://readthedocs.org/docs/unofficial-google-music-api/en/latest) and testing code. 
 
-In addition, Michal Odnous has built [an example](https://github.com/odiroot/Unofficial-Google-Music-API/blob/mo-sandbox/example_play.py) that will play songs from your library.
+In addition, Michal Odnous has built [an example](https://github.com/odiroot/Unofficial-Google-Music-API/blob/master/example_play.py) that will play songs from your library.
 
 ##Ports
 
@@ -71,7 +71,7 @@ Here are the ports I'm currently aware of:
 
 * C#: [Taylor Finnell](https://github.com/Byteopia/GoogleMusicAPI.NET)
 * Java: [Jens Villadsen](https://github.com/jkiddo/gmusic.api)
-
+* PHP: [raydanhk](http://code.google.com/p/unofficial-google-music-api-php/)
 
 ###Porting Information for Developers
 
