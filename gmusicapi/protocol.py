@@ -266,6 +266,9 @@ class Metadata_Expectations(object):
         val_type = "boolean"
     class matchedId(_Metadata_Expectation):
         mutable = False
+    class storeId(_Metadata_Expectation):
+        mutable = False
+        optional = True # only on purchased tracks?
         
     
     #Dependent metadata:
