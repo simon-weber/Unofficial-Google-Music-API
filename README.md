@@ -49,6 +49,8 @@ The API has been tested on Python 2.7.2 on Linux and Windows.
 
 ###Installation
 
+To build from source, you'll need the following Python modules: [mutagen](http://pypi.python.org/pypi/mutagen/), [validictory](http://pypi.python.org/pypi/validictory/), [protobuf](http://pypi.python.org/pypi/protobuf/), [decorator](http://pypi.python.org/pypi/decorator/), [chardet](http://pypi.python.org/pypi/chardet/).
+
 If you're not comfortable installing from source:
 
 * Linux users: use `pip install gmusicapi` to get the most recent version and dependencies.
