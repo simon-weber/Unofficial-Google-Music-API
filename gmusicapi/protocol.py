@@ -250,7 +250,7 @@ class Metadata_Expectations(object):
     class albumArtUrl(_Metadata_Expectation):
         mutable = False
         optional = True #only seen when there is album art.
-    class gm_type(_Metadata_Expectation):
+    class type(_Metadata_Expectation):
         mutable = False
         val_type = "integer"
     class beatsPerMinute(_Metadata_Expectation):
