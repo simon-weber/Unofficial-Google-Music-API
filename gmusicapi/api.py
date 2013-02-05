@@ -349,7 +349,7 @@ class Api(UsesLog):
         #The protocol expects a list of songs - could extend with accept_singleton
         info = self._wc_call("multidownload", [song_id])
 
-        return (info["url"], info["downloadCounts"][song_id])
+        return (getattr(info,"url",''), info["downloadCounts"][song_id])
 
     def get_stream_url(self, song_id):
         """Returns a url that points to a streamable version of this song. 
