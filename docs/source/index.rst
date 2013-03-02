@@ -1,91 +1,77 @@
-The Unofficial Google Music Api
-*******************************
+gmusicapi: an unofficial API for Google Play Music
+==================================================
 
-The api itself is hosted at GitHub: https://github.com/simon-weber/Unofficial-Google-Music-API.
+This library allows control of
+`Google Music <http://music.google.com>`__ with Python.
 
-.. currentmodule:: gmusicapi
-.. automodule:: gmusicapi.api
+.. code-block:: python
 
+    from gmusicapi import Api
+    api = Api()
+    api.login('user@gmail.com', 'my-password')
+    # => True
 
+    library = api.get_all_songs()
+    sweet_tracks = [track for track in library if track['artist'] == 'The Cat Empire']
 
-Api Features
-============
+    playlist_id = api.create_playlist('Rad muzak')
+    api.change_playlist(playlist_id, sweet_tracks)
+    
 
-Authentication
---------------
-.. autoclass:: Api
-    :members: login, logout
+**This project is not supported nor endorsed by Google.**
+Use common sense (protocol compliance, reasonable load, etc) and don't ruin the fun
+for everyone else.
 
-Getting songs and playlists
------------------------------------
-.. autoclass:: Api
-    :members: get_all_songs, get_all_playlist_ids, get_playlist_songs
+Features
+--------
 
-Song uploading, downloading, and streaming
-------------------------------------------
-.. autoclass:: Api
-    :members: get_song_download_info, get_stream_url, upload
+All major functionality is supported:
 
-Playlist manipulation
----------------------
-.. autoclass:: Api
-    :members: change_playlist, change_playlist_name, copy_playlist, create_playlist, delete_playlist, add_songs_to_playlist, remove_songs_from_playlist
+-  Library management: list, create, delete, and modify songs and playlists
 
-Song manipulation
------------------
-.. autoclass:: Api
-    :members: change_song_metadata, delete_songs
+-  Web-client streaming and single-song downloading
 
+-  Music Manager uploading/scan-and-match of all Google-supported file formats
 
-Searching
----------
-.. autoclass:: Api
-    :members: search
+Other features are on the way:
 
+-  Music Manager library downloading (issue `#90
+   <https://github.com/simon-weber/Unofficial-Google-Music-API/issues/90>`__)
+-  Full "fix incorrect match" support (issue `#89
+   <https://github.com/simon-weber/Unofficial-Google-Music-API/issues/89>`__)
 
-GM Metadata Format
-==================
+See `the changelog
+<https://github.com/simon-weber/Unofficial-Google-Music-API/blob/develop/HISTORY.rst>`__
+for changes by version.
 
-Google Music sends song metadata in dictionaries.
+Using gmusicapi
+---------------
 
-These dictionaries have up to 30 keys. Here is an example::
+.. toctree::
+   :hidden:
 
-    {'comment': ''
-     'rating': 0
-     'lastPlayed': 1324954872637533L
-     'disc': 1
-     'composer': ''
-     'year': 2009
-     'id': '305a7b83-32fa-3a71-9a77-498dfce74aad'
-     'album': 'Live on Earth'
-     'title': 'The Car Song'
-     'deleted': False
-     'albumArtist': 'The Cat Empire'
-     'type': 2
-     'titleNorm': 'the car song'
-     'track': 2
-     'albumArtistNorm': 'the cat empire'
-     'totalTracks': 0
-     'beatsPerMinute': 0
-     'genre': 'Alternative'
-     'playCount': 0
-     'creationDate': 1324614519429366L
-     'name': 'The Car Song'
-     'albumNorm': 'live on earth'
-     'artist': 'The Cat Empire'
-     'url': ''
-     'totalDiscs': 2
-     'durationMillis': 562000
-     'artistNorm': 'the cat empire',
-     'subjectToCuration': False,
-     'matchedId': '',
+   usage
+   ports
+   contributing
 
-     #optional entries:
-     'albumArtUrl': '//lh6.googleusercontent.com/<long identifier>',
-     'storeID': '<27 char base64 string>'
-     }
+For help getting started, check out the :ref:`usage section <usage>`.
 
+The reference has details on specific features, as well as the format of
+the Google Music data you'll see:
 
-In addition, songs retrieved in the context of a playlist will contain a `playlistEntryId` which is unique to the relevant playlist.
+.. toctree::
+   :maxdepth: 2
 
-See ``Metadata_Expectations`` in ``protocol.py`` for complete information.
+   reference/api
+   reference/metadata
+   reference/protocol
+
+If you'd like to help make gmusicapi better, the
+:ref:`contributing section <contributing>` is for you.
+You might also be interested in `the code
+<https://github.com/simon-weber/Unofficial-Google-Music-API>`__.
+
+If you don't want to use Python, or you want to create a port, see the
+:ref:`ports section <ports>`.
+
+Lastly, feel free to drop by ``#gmusicapi`` on Freenode to ask questions or just hang out.
