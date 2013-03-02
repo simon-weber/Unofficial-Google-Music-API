@@ -144,6 +144,7 @@ _all_expts = [
         ('storeId', 'string', 'an id of a matching track in the Play Store.'),
         ('reuploading', 'boolean', 'scan-and-match reupload in progress.'),
         ('albumMatchedId', 'string', 'id of matching album in the Play Store?'),
+        ('artistMatchedId', 'string', 'id of matching artist in the Play Store?'),
         ('pending', 'boolean', 'unsure; server processing (eg for store match) pending?'),
         ('url', 'string',  'meaning unknown.'),
         ('bitrate', 'integer', "bitrate in kilobytes/second (eg 320)."),
