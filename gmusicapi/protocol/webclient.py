@@ -16,7 +16,7 @@ from gmusicapi.compat import json
 from gmusicapi.exceptions import CallFailure, ValidationException
 from gmusicapi.protocol.metadata import md_expectations
 from gmusicapi.protocol.shared import Call, authtypes
-from gmusicapi.utils import utils
+from gmusicapi.utils import jsarray, utils
 
 base_url = 'https://play.google.com/music/'
 service_url = base_url + 'services/'
@@ -547,42 +547,64 @@ class GetStreamUrl(WcCall):
         return params
 
 
-class Search(WcCall):
-    """Fuzzily search for songs, artists and albums.
-    Not needed for most use-cases; local search is usually faster and more flexible"""
+class AASearch(WcCall):
+    """Search for All Access tracks."""
 
     static_method = 'POST'
     static_url = service_url + 'search'
-
-    _res_schema = {
-        "type": "object",
-        "properties": {
-            "results": {
-                "type": "object",
-                "properties": {
-                    "artists": song_array,  # hits on artists
-                    "songs": song_array,    # hits on tracks
-                    "albums": {             # hits on albums; no track info returned
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "artistName": {"type": "string", "blank": True},
-                                "imageUrl": {"type": "string", "required": False},
-                                "albumArtist": {"type": "string", "blank": True},
-                                "albumName": {"type": "string"},
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "additionalProperties": False
-    }
+    static_params = {'format': 'jsarray'}
 
     @staticmethod
     def dynamic_data(query):
-        return {'json': json.dumps({'q': query})}
+        # TODO first param should be session id, not empty string
+        return json.dumps([["", 1], [query, 10]])
+
+    @classmethod
+    def parse_response(cls, response):
+        return jsarray.loads(response.text)
+
+    @classmethod
+    def validate(cls, response, msg):
+        pass  # TODO?
+
+    @classmethod
+    def check_success(cls, response, msg):
+        pass  # TODO?
+
+    @classmethod
+    def unpack_search_results(cls, items):
+        return {
+            'song_hits': cls.unpack_fields(cls.song_fields, items[1][0]),
+            'album_hits': cls.unpack_fields(cls.album_fields, items[1][1]),
+            'artist_hits': cls.unpack_fields(cls.artist_fields, items[1][2]),
+        }
+
+    @staticmethod
+    def unpack_fields(field_names, items):
+        res = dict(zip(field_names, items))
+        del res[None]
+        return res
+
+    # fields declared as None will not be included in the final result.
+    song_fields = (
+        'id', 'title', 'albumArtUrl', 'artist', 'album', 'albumArtist', 'titleNorm',
+        'artistNorm', 'albumNorm', 'albumArtistNorm', 'composer', 'genre', None, 'durationMillis',
+        'track', 'totalTracks', 'disc', 'totalDiscs', 'year', 'deleted', 'expunged', 'pending',
+        'playCount', 'rating', 'creationDate', 'lastPlayed', 'subjectToCuration', 'storeId',
+        'matchedId', 'type', 'comment', 'reuploading', 'albumMatchedId', 'artistMatchedId',
+        'bitrate', 'recentTimestamp', 'artistImageBaseUrl', 'albumPlaybackTimestamp',
+        'explicitType', None,
+    )
+
+    album_fields = (
+        'id', 'title', 'artist', 'albumArtUrl', None, None, None, 'albumMatchedId', None,
+        'year', 'artistMatchedId', None, None, 'explicitType'
+    )
+
+    artist_fields = (
+        'id', 'artistMatchedId', 'artist', None, None, 'artistImageBaseUrl', None,
+        None, None, None, None, None,
+    )
 
 
 class ReportBadSongMatch(WcCall):
