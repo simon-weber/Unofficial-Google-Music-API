@@ -20,6 +20,7 @@ from gmusicapi.utils import jsarray, utils
 
 base_url = 'https://play.google.com/music/'
 service_url = base_url + 'services/'
+sj_url = 'https://www.googleapis.com/sj/v1/'
 
 #Shared response schemas, built to include metadata expectations.
 song_schema = {
@@ -58,6 +59,65 @@ pl_array = {
     "items": pl_schema
 }
 
+sj_artist = {
+        'type':'object',
+        'properties':{
+                'kind':{'type':'string'},
+                'name':{'type':'string'},
+                'artistArtRef':{'type':'string'},
+                'artistId':{'type':'string'}
+            }
+    }
+
+sj_album = {
+        'type':'object',
+        'properties':{
+                'kind':{'type':'string'},
+                'name':{'type':'string'},
+                'albumArtist':{'type':'string'},
+                'albumArtRef':{'type':'string'},
+                'albumId':{'type':'string'},
+                'artist':{'type':'string'},
+                'artistId':{'type':'array', 'items':{'type':'string'}},
+                'year': {'type': 'integer'}
+            }
+    }
+
+sj_track = {
+        'type':'object',
+        'properties':{
+                'kind':{'type':'string'},
+                'title':{'type':'string'},
+                'artist':{'type':'string'},
+                'album':{'type':'string'},
+                'albumArtist':{'type':'string'},
+                'trackNumber':{'type':'integer'},
+                'durationMillis':{'type':'string'},
+                'albumArtRef':{'type':'array', 'items':{'type':'object', 'properties':{'url':{'type':'string'}}}},
+                'discNumber':{'type':'integer'},
+                'estimatedSize':{'type':'string'},
+                'trackType':{'type':'string'},
+                'storeId':{'type':'string'},
+                'albumId':{'type':'string'},
+                'artistId':{'type':'array', 'items':{'type':'string'}},
+                'nid':{'type':'string'},
+                'trackAvailableForPurchase':{'type':'boolean'},
+                'albumAvailableForPurchase':{'type':'boolean'},
+            }
+    }
+
+sj_result = {
+        "type":"object",
+        "properties":{
+                'score':{"type":"number"},
+                'artists':sj_artist,
+                'album': sj_album,
+                'track': sj_track
+            }
+    }
+sj_result['properties']['artists']['required']=False
+sj_result['properties']['album']['required']=False
+sj_result['properties']['track']['required']=False
 
 class Init(Call):
     """Called after login and once before any other webclient call.
@@ -547,65 +607,25 @@ class GetStreamUrl(WcCall):
         return params
 
 
-class AASearch(WcCall):
-    """Search for All Access tracks."""
+class Search(WcCall):
+    """Search for everything"""
 
-    static_method = 'POST'
-    static_url = service_url + 'search'
-    static_params = {'format': 'jsarray'}
+    required_auth = authtypes(xt=True, sso=True)
 
-    @staticmethod
-    def dynamic_data(query):
-        # TODO first param should be session id, not empty string
-        return json.dumps([["", 1], [query, 10]])
+    static_method = 'GET'
 
-    @classmethod
-    def parse_response(cls, response):
-        return jsarray.loads(response.text)
-
-    @classmethod
-    def validate(cls, response, msg):
-        pass  # TODO?
-
-    @classmethod
-    def check_success(cls, response, msg):
-        pass  # TODO?
-
-    @classmethod
-    def unpack_search_results(cls, items):
-        return {
-            'song_hits': cls.unpack_fields(cls.song_fields, items[1][0]),
-            'album_hits': cls.unpack_fields(cls.album_fields, items[1][1]),
-            'artist_hits': cls.unpack_fields(cls.artist_fields, items[1][2]),
-        }
+    _res_schema = {
+            "type": "object",
+            "properties": {
+                "kind":{"type":"string"},
+                "entries": {'type':'array', 'items': sj_result}
+            },
+        "additionalProperties": False
+    }
 
     @staticmethod
-    def unpack_fields(field_names, items):
-        res = dict(zip(field_names, items))
-        del res[None]
-        return res
-
-    # fields declared as None will not be included in the final result.
-    song_fields = (
-        'id', 'title', 'albumArtUrl', 'artist', 'album', 'albumArtist', 'titleNorm',
-        'artistNorm', 'albumNorm', 'albumArtistNorm', 'composer', 'genre', None, 'durationMillis',
-        'track', 'totalTracks', 'disc', 'totalDiscs', 'year', 'deleted', 'expunged', 'pending',
-        'playCount', 'rating', 'creationDate', 'lastPlayed', 'subjectToCuration', 'storeId',
-        'matchedId', 'type', 'comment', 'reuploading', 'albumMatchedId', 'artistMatchedId',
-        'bitrate', 'recentTimestamp', 'artistImageBaseUrl', 'albumPlaybackTimestamp',
-        'explicitType', None,
-    )
-
-    album_fields = (
-        'id', 'title', 'artist', 'albumArtUrl', None, None, None, 'albumMatchedId', None,
-        'year', 'artistMatchedId', None, None, 'explicitType'
-    )
-
-    artist_fields = (
-        'id', 'artistMatchedId', 'artist', None, None, 'artistImageBaseUrl', None,
-        None, None, None, None, None,
-    )
-
+    def dynamic_url(query, max_ret):
+        return  sj_url + 'query?q=%s&max-results=%d' % (query, max_ret)
 
 class ReportBadSongMatch(WcCall):
     """Request to signal the uploader to reupload a matched track."""

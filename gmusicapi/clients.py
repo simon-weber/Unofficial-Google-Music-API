@@ -1178,67 +1178,24 @@ class Webclient(_Base):
 
         return res['deleteIds']
 
-    def search(self, query):
+    def search(self, query, max_results=5):
         """Queries the server for songs and albums.
 
-        **WARNING**: Google no longer uses this endpoint in their client;
-        it may stop working or be removed from gmusicapi without warning.
-        In addition, it is known to occasionally return unexpected results.
-        See `#114
-        <https://github.com/simon-weber/Unofficial-Google-Music-API/issues/114>`__
-        for more information.
-
-        Instead of using this call, retrieve all tracks with :func:`get_all_songs`
-        and search them locally.  `This gist
-        <https://gist.github.com/simon-weber/5007769>`__ has some examples of
-        simple linear-time searches.
-
         :param query: a string keyword to search with. Capitalization and punctuation are ignored.
+        :param max_results: Maximum number of items to be retrieved
 
         The results are returned in a dictionary, arranged by how they were found.
         ``artist_hits`` and ``song_hits`` return a list of
         :ref:`song dictionaries <songdict-format>`, while ``album_hits`` entries
         have a different structure.
 
-        For example, a search on ``'cat'`` could return::
-
-            {
-                "album_hits": [
-                    {
-                        "albumArtist": "The Cat Empire",
-                        "albumName": "Cities: The Cat Empire Project",
-                        "artistName": "The Cat Empire",
-                        "imageUrl": "//ssl.gstatic.com/music/fe/[...].png"
-                        # no more entries
-                    },
-                ],
-                "artist_hits": [
-                    {
-                        "album": "Cinema",
-                        "artist": "The Cat Empire",
-                        "id": "c9214fc1-91fa-3bd2-b25d-693727a5f978",
-                        "title": "Waiting"
-                        # ... normal song dictionary
-                    },
-                ],
-                "song_hits": [
-                    {
-                        "album": "Mandala",
-                        "artist": "RX Bandits",
-                        "id": "a7781438-8ec3-37ab-9c67-0ddb4115f60a",
-                        "title": "Breakfast Cat",
-                        # ... normal song dictionary
-                    },
-                ]
-            }
-
         """
 
-        res = self._make_call(webclient.Search, query)['results']
+        res = self._make_call(webclient.Search, query, max_results)['entries']
 
-        return {"album_hits": res["albums"],
-                "artist_hits": res["artists"],
-                "song_hits": res["songs"]}
+        return {"album_hits": [hit for hit in res if hit['type']=="3"],
+                "artist_hits": [hit for hit in res if hit['type']=="2"],
+                "song_hits": [hit for hit in res if hit['type']=="1"]}
 
     @utils.accept_singleton(basestring)
     @utils.empty_arg_shortcircuit
