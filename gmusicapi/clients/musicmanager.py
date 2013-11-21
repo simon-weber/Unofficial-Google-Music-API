@@ -33,6 +33,24 @@ class Musicmanager(_Base):
     Alternatively, users can implement the OAuth flow themselves, then
     provide credentials directly to :func:`login`.
     """
+    # Variable to hold the oauth flow
+    flow = None
+
+    @staticmethod
+    def get_oauth_uri():
+        Musicmanager.flow = OAuth2WebServerFlow(*musicmanager.oauth)
+        return Musicmanager.flow.step1_get_authorize_url()
+
+    @staticmethod
+    def get_oauth_credentials(oauth_code, storage_filepath=OAUTH_FILEPATH):
+        credentials = Musicmanager.flow.step2_exchange(oauth_code)
+        if storage_filepath is not None:
+            if storage_filepath == OAUTH_FILEPATH:
+                utils.make_sure_path_exists(os.path.dirname(OAUTH_FILEPATH), 0o700)
+            storage = oauth2client.file.Storage(storage_filepath)
+            storage.put(credentials)
+
+        return credentials
 
     @staticmethod
     def perform_oauth(storage_filepath=OAUTH_FILEPATH, open_browser=False):
@@ -61,10 +79,8 @@ class Musicmanager(_Base):
           in the system default web browser. The url will be printed
           regardless of this param's setting.
         """
+        Musicmanager.get_oauth_uri()
 
-        flow = OAuth2WebServerFlow(*musicmanager.oauth)
-
-        auth_uri = flow.step1_get_authorize_url()
         print
         print "Visit the following url:\n %s" % auth_uri
 
@@ -78,16 +94,7 @@ class Musicmanager(_Base):
 
         code = raw_input("Follow the prompts,"
                          " then paste the auth code here and hit enter: ")
-
-        credentials = flow.step2_exchange(code)
-
-        if storage_filepath is not None:
-            if storage_filepath == OAUTH_FILEPATH:
-                utils.make_sure_path_exists(os.path.dirname(OAUTH_FILEPATH), 0o700)
-            storage = oauth2client.file.Storage(storage_filepath)
-            storage.put(credentials)
-
-        return credentials
+        return Musicmanager.get_oauth_credentials(code, storage_filepath)
 
     def __init__(self, debug_logging=True, validate=True):
         self.session = session.Musicmanager()
