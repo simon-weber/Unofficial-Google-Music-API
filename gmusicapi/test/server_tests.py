@@ -116,6 +116,8 @@ class ClientTests(object):
     # both are [TestSong]
     user_songs = None
     aa_songs = None
+    # single TestSong
+    artwork_song = None
 
     playlist_id = None
     plentry_ids = None
@@ -270,6 +272,47 @@ class ClientTests(object):
         self.user_songs = self.assert_songs_state(self.mc.get_all_songs, user_sids, present=True)
         self.aa_songs = self.assert_songs_state(self.mc.get_all_songs, aa_sids, present=True)
 
+    @test
+    def song_with_art_create(self):
+
+        art_sids = []
+
+        fname = test_utils.small_mp3_with_art
+
+        uploaded, matched, not_uploaded = self.mm.upload(fname)
+
+        if len(not_uploaded) == 1 and 'ALREADY_EXISTS' in not_uploaded[fname]:
+            # If a previous test went wrong, the track might be there already.
+            #TODO This build will fail because of the warning - is that what we want?
+            assert_equal(matched, {})
+            assert_equal(uploaded, {})
+
+            # this matches the sid from the error message
+            art_sids.append(re.search(r'\(.*\)', not_uploaded[fname]).group().strip('()'))
+        else:
+            # Otherwise, it should have been uploaded normally.
+            assert_equal(not_uploaded, {})
+            assert_equal(matched, {})
+            assert_equal(uploaded.keys(), [fname])
+
+            art_sids.append(uploaded[fname])
+
+        art_songs = self.assert_songs_state(self.mc.get_all_songs, art_sids, present=True)
+        self.art_song = art_songs[0]
+
+        assert_true(hasattr(self.art_song, 'albumArtRef'))
+        assert_equals(len(self.art_song.albumArtRef), 1)
+
+    @test(runs_after=[song_with_art_create],
+          always_run=True)
+    def song_with_art_delete(self):
+
+        res = self.mc.delete_songs(self.art_song.sid)
+        assert_equal(res, [self.art_song.sid])
+
+        self.assert_songs_state(self.mc.get_all_songs, [self.art_song.sid], present=False)
+        self.assert_list_with_deleted(self.mc.get_all_songs)
+	
     @test
     def playlist_create(self):
         playlist_id = self.mc.create_playlist(TEST_PLAYLIST_NAME)
