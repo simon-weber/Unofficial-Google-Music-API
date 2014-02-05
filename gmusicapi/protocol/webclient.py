@@ -549,7 +549,9 @@ class UploadImage(WcCall):
         with open(image_filepath, 'rb') as f:
             contents = f.read()
 
-        return {'albumArt': (image_filepath, contents)}
+        #convert windows paths to unix separator
+        clean_path = image_filepath.replace("\\","/")
+        return {'albumArt': (clean_path, contents)}
 
 
 class GetSettings(WcCall):
