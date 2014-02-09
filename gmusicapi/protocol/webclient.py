@@ -9,6 +9,7 @@ import random
 import string
 import sys
 from hashlib import sha1
+from os import path
 
 import validictory
 
@@ -549,9 +550,8 @@ class UploadImage(WcCall):
         with open(image_filepath, 'rb') as f:
             contents = f.read()
 
-        #convert windows paths to unix separator
-        clean_path = image_filepath.replace("\\","/")
-        return {'albumArt': (clean_path, contents)}
+        file_name = path.basename(image_filepath)
+        return {'albumArt': (file_name, contents)}
 
 
 class GetSettings(WcCall):
