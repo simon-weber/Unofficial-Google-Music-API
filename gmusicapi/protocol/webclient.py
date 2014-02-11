@@ -11,7 +11,6 @@ import string
 import sys
 from hashlib import sha1
 
-
 import validictory
 
 from gmusicapi.compat import json
