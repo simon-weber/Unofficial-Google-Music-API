@@ -5,11 +5,12 @@
 import base64
 import copy
 import hmac
+import os
 import random
 import string
 import sys
 from hashlib import sha1
-from os import path
+
 
 import validictory
 
@@ -550,7 +551,7 @@ class UploadImage(WcCall):
         with open(image_filepath, 'rb') as f:
             contents = f.read()
 
-        file_name = path.basename(image_filepath)
+        file_name = os.path.basename(image_filepath)
         return {'albumArt': (file_name, contents)}
 
 
