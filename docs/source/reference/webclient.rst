@@ -27,6 +27,7 @@ Song downloading and streaming
 
 Song manipulation
 -----------------
+.. automethod:: Webclient.change_song_metadata
 .. automethod:: Webclient.upload_album_art
 .. automethod:: Webclient.delete_songs
 

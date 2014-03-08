@@ -399,17 +399,42 @@ class ChangeSongMetadata(WcCall):
     }
 
     @staticmethod
-    def dynamic_data(songs, session_id=""):
+    def _song_to_jsarray(song):
+        # id is guaranteed, but not the other attributes
+        js = [song['id']]
+        # order and position of the set-able attribs along with others' defaults
+        attribs = ['name', 'albumArtUrl', 'artist', 'album', 'albumArtist',
+                   None, None, None, None, 'composer', 'genre', None, None,
+                   'track', 'totalTracks', 'disc', 'totalDiscs', 'year', None,
+                   None, None, None, 'rating', None, None, None, None,
+                   None, None, None, None, None, None, None, None, None, None,
+                   'explicitType', [], None, None, True]
+        for a in attribs:
+            if type(a) is str:
+                js.append(song[a]) if a in song else js.append(None)
+            else:
+                js.append(a)
+        return js
+
+    @classmethod
+    def dynamic_data(cls, songs, session_id=""):
         """
         :param songs: a list of dicts ``{'id': '...', 'albumArtUrl': '...'}``
         """
-        if any([s for s in songs if set(s.keys()) != set(['id', 'albumArtUrl'])]):
-            raise ValueError("ChangeSongMetadata only supports the 'id' and 'albumArtUrl' keys."
+        supported = set(['id', 'albumArtUrl', 'composer', 'album', 'albumArtist',
+                         'genre', 'name', 'artist', 'disc', 'year', 'track',
+                         'totalTracks', 'totalDiscs', 'explicitType', 'rating'])
+        if any([s for s in songs if not set(s.keys()).issubset(supported) or 'id' not in s]):
+            raise ValueError("ChangeSongMetadata only supports a limited set of keys."
+                             " 'id' must be present and only 'albumArtUrl', 'composer',"
+                             " 'album', 'albumArtist', 'genre', 'name', 'artist', 'disc',"
+                             " 'year', 'track', 'totalTracks', 'totalDiscs', 'explicitType',"
+                             " and 'rating' may be changed."
                              " All other keys must be removed.")
 
         # jsarray is just wonderful
         jsarray = [[session_id, 1]]
-        song_arrays = [[s['id'], None, s['albumArtUrl']] + [None] * 36 + [[]] for s in songs]
+        song_arrays = [cls._song_to_jsarray(s) for s in songs]
         jsarray.append([song_arrays])
 
         return json.dumps(jsarray)
