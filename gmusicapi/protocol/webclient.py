@@ -421,16 +421,8 @@ class ChangeSongMetadata(WcCall):
         """
         :param songs: a list of dicts ``{'id': '...', 'albumArtUrl': '...'}``
         """
-        supported = set(['id', 'albumArtUrl', 'composer', 'album', 'albumArtist',
-                         'genre', 'name', 'artist', 'disc', 'year', 'track',
-                         'totalTracks', 'totalDiscs', 'explicitType', 'rating'])
-        if any([s for s in songs if not set(s.keys()).issubset(supported) or 'id' not in s]):
-            raise ValueError("ChangeSongMetadata only supports a limited set of keys."
-                             " 'id' must be present and only 'albumArtUrl', 'composer',"
-                             " 'album', 'albumArtist', 'genre', 'name', 'artist', 'disc',"
-                             " 'year', 'track', 'totalTracks', 'totalDiscs', 'explicitType',"
-                             " and 'rating' may be changed."
-                             " All other keys must be removed.")
+        if any([s for s in songs if 'id' not in s]):
+            raise ValueError("ChangeSongMetadata requires every song to have an 'id'.")
 
         # jsarray is just wonderful
         jsarray = [[session_id, 1]]
