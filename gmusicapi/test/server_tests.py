@@ -527,6 +527,45 @@ class ClientTests(object):
         assert_equal(url[:7], 'http://')
         #TODO download the track and verify the metadata changed
 
+    @song_test
+    def wc_change_metadata(self):
+        orig_song = self.user_songs[0].full_data
+        song_1 = orig_song.copy()
+        song_2 = song_1.copy()
+
+        metadata_1 = {'rating': 1, 'name': 'name_1', 'album': 'album_1',
+                      'albumArtist': 'albumArtist_1', 'artist': 'artist_1',
+                      'composer': 'composer_1', 'genre': 'genre_1', 'track': '1',
+                      'disc': '1', 'year': '1', 'totalTracks': '1',
+                      'totalDiscs': '1', 'explicitType': 1}
+        metadata_2 = {'rating': 2, 'name': 'name_2', 'album': 'album_2',
+                      'albumArtist': 'albumArtist_2', 'artist': 'artist_2',
+                      'composer': 'composer_2', 'genre': 'genre_2', 'track': '2',
+                      'disc': '2', 'year': '2', 'totalTracks': '2',
+                      'totalDiscs': '2', 'explicitType': 2}
+
+        for attrib, value in metadata_1.iteritems():
+            song_1[attrib] = value
+        for attrib, value in metadata_2.iteritems():
+            song_2[attrib] = value
+
+        def change_and_assert_metadata(song, metadata):
+            songs = self.wc.change_song_metadata(song)
+            assert_equal(len(songs), 1)
+            assert_equal(songs[0], song['id'])
+            library = self.mc.get_all_songs()
+            live_song = [s for s in library if s['id'] == song['id']]
+            for attrib, value in metadata.iteritems():
+                assert_equal(live_song[attrib], value)
+
+        # test once so we have a known current state
+        change_and_assert_metadata(song_1, metadata_1)
+        # test again to make sure every mutable attribute is changed
+        change_and_assert_metadata(song_2, metadata_2)
+
+        # revert to original state
+        self.wc.change_song_metadata(orig_song)
+
     ##---------
     ## MC tests
     ##---------
