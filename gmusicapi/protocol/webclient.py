@@ -407,8 +407,8 @@ class ChangeSongMetadata(WcCall):
                    None, None, None, None, 'composer', 'genre', None, None,
                    'track', 'totalTracks', 'disc', 'totalDiscs', 'year', None,
                    None, None, None, 'rating', None, None, None, None,
-                   None, None, None, None, None, None, None, None, None, None,
-                   'explicitType', [], None, None, True]
+                   None, None, 'comment', None, None, None, None, None, None,
+                   None, 'explicitType', [], None, None, True]
         for a in attribs:
             if type(a) is str:
                 js.append(song[a]) if a in song else js.append(None)
