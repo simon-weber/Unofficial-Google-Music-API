@@ -537,12 +537,12 @@ class ClientTests(object):
                       'albumArtist': 'albumArtist_1', 'artist': 'artist_1',
                       'composer': 'composer_1', 'genre': 'genre_1', 'track': '1',
                       'disc': '1', 'year': '1', 'totalTracks': '1',
-                      'totalDiscs': '1', 'explicitType': 1}
+                      'totalDiscs': '1', 'explicitType': 1, 'comment': 'comment_1'}
         metadata_2 = {'rating': 2, 'name': 'name_2', 'album': 'album_2',
                       'albumArtist': 'albumArtist_2', 'artist': 'artist_2',
                       'composer': 'composer_2', 'genre': 'genre_2', 'track': '2',
                       'disc': '2', 'year': '2', 'totalTracks': '2',
-                      'totalDiscs': '2', 'explicitType': 2}
+                      'totalDiscs': '2', 'explicitType': 2, 'comment': 'comment_2'}
 
         for attrib, value in metadata_1.iteritems():
             song_1[attrib] = value
