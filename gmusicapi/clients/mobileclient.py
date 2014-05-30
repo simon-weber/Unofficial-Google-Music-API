@@ -658,6 +658,110 @@ class Mobileclient(_Base):
 
         return stations[0].get('tracks', [])
 
+    def get_artist_mix_tracks(self, artist_id, num_tracks=25):
+        """Returns a list of dictionaries that each represent a track.
+
+        :param artist_id: the id of the artist being related to the tracks to retreive
+        :param num_tracks: the number of tracks to retrieve
+
+        See :func:`get_all_songs` for the format of a track dictionary.
+        """
+
+        seed = {'artistId': artist_id, 'seedType': 3}
+
+        res = self._make_call(mobileclient.ListMixTracks, seed,
+                              num_tracks, recently_played=[])
+
+        stations = res.get('data', {}).get('stations')
+        if not stations:
+            return []
+
+        return stations[0].get('tracks', [])
+
+    def get_artist_only_mix_tracks(self, artist_id, num_tracks=25):
+        """Returns a list of dictionaries that each represent a track.
+
+        :param artist_id: the id of the artist to retreive tracks from
+        :param num_tracks: the number of tracks to retrieve
+
+        See :func:`get_all_songs` for the format of a track dictionary.
+        """
+
+        seed = {'artistId': artist_id, 'seedType': 7}
+
+        res = self._make_call(mobileclient.ListMixTracks, seed,
+                              num_tracks, recently_played=[])
+
+        stations = res.get('data', {}).get('stations')
+        if not stations:
+            return []
+
+        return stations[0].get('tracks', [])
+
+    def get_album_mix_tracks(self, album_id, num_tracks=25):
+        """Returns a list of dictionaries that each represent a track.
+
+        :param album_id: the id of the album being related to the tracks to retreive
+        :param num_tracks: the number of tracks to retrieve
+
+        See :func:`get_all_songs` for the format of a track dictionary.
+        """
+
+        seed = {'albumId': album_id}
+
+        res = self._make_call(mobileclient.ListMixTracks, seed,
+                              num_tracks, recently_played=[])
+
+        stations = res.get('data', {}).get('stations')
+        if not stations:
+            return []
+
+        return stations[0].get('tracks', [])
+
+    def get_track_mix_tracks(self, track_id, num_tracks=25):
+        """Returns a list of dictionaries that each represent a track.
+
+        :param track_id: the id of the track being related to the tracks to retreive
+        :param num_tracks: the number of tracks to retrieve
+
+        See :func:`get_all_songs` for the format of a track dictionary.
+        """
+
+        seed = {}
+        if track_id[0] == 'T':
+            seed['trackId'] = track_id
+        else:
+            seed['trackLockerId'] = track_id
+
+        res = self._make_call(mobileclient.ListMixTracks, seed,
+                              num_tracks, recently_played=[])
+
+        stations = res.get('data', {}).get('stations')
+        if not stations:
+            return []
+
+        return stations[0].get('tracks', [])
+
+    def get_genre_mix_tracks(self, genre_id, num_tracks=25):
+        """Returns a list of dictionaries that each represent a track.
+
+        :param genre_id: the id of the genre to retrieve tracks from
+        :param num_tracks: the number of tracks to retrieve
+
+        See :func:`get_all_songs` for the format of a track dictionary.
+        """
+
+        seed = {'genreId': genre_id}
+
+        res = self._make_call(mobileclient.ListMixTracks, seed,
+                              num_tracks, recently_played=[])
+
+        stations = res.get('data', {}).get('stations')
+        if not stations:
+            return []
+
+        return stations[0].get('tracks', [])
+
     def search_all_access(self, query, max_results=50):
         """Queries the server for All Access songs and albums.
 
