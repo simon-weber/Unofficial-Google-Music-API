@@ -1,6 +1,8 @@
 gmusicapi: an unofficial API for Google Play Music
 ==================================================
 
+edit
+
 gmusicapi allows control of
 `Google Music <http://music.google.com>`__ with Python.
 
