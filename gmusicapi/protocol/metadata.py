@@ -64,6 +64,7 @@ The above information is used to generate the documentation below.
 If you find an example to clarify these expectations, please `submit an issue
 <https://github.com/simon-weber/Unofficial-Google-Music-API/issues>`__.
 """
+from builtins import range
 
 from collections import defaultdict, namedtuple
 

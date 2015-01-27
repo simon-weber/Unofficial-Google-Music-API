@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
 """Definitions shared by multiple clients."""
+from builtins import str
+from builtins import range
+from builtins import object
 
 from collections import namedtuple
 import sys
@@ -15,6 +18,7 @@ from gmusicapi.exceptions import (
 from gmusicapi.utils import utils
 
 import requests
+from future.utils import with_metaclass, raise_from
 
 log = utils.DynamicClientLogger(__name__)
 
@@ -82,7 +86,7 @@ class BuildRequestMeta(type):
         def req_closure(config=config):
             def build_request(cls, *args, **kwargs):
                 req_kwargs = {}
-                for key, val in config.items():
+                for key, val in list(config.items()):
                     if hasattr(val, '__call__'):
                         val = val(*args, **kwargs)
 
@@ -96,7 +100,7 @@ class BuildRequestMeta(type):
         return new_cls
 
 
-class Call(object):
+class Call(with_metaclass(BuildRequestMeta, object)):
     """
     Clients should use Call.perform().
 
@@ -148,8 +152,6 @@ class Call(object):
     Calls are organized semantically, so one endpoint might have multiple calls.
     """
 
-    __metaclass__ = BuildRequestMeta
-
     gets_logged = True
     fail_on_non_200 = True
 
@@ -199,7 +201,7 @@ class Call(object):
             log.debug("%s(args=%s, kwargs=%s)",
                       call_name,
                       [utils.truncate(a) for a in args],
-                      dict((k, utils.truncate(v)) for (k, v) in kwargs.items())
+                      dict((k, utils.truncate(v)) for (k, v) in list(kwargs.items()))
                       )
         else:
             log.debug("%s(<omitted>)", call_name)
@@ -252,14 +254,13 @@ class Call(object):
                 raise
 
             # otherwise, reraise a new exception with our req/res context
-            trace = sys.exc_info()[2]
             err_msg = ("{e_message}\n"
                        "(requests kwargs: {req_kwargs!r})\n"
                        "(response was: {content!r})").format(
                            e_message=e.message,
                            req_kwargs=safe_req_kwargs,
                            content=response.content)
-            raise CallFailure(err_msg, e.callname), None, trace
+            raise_from(CallFailure(err_msg, e.callname), e)
 
         except ValidationException as e:
             # TODO shouldn't be using formatting
@@ -288,8 +289,7 @@ class Call(object):
         try:
             return json.loads(text)
         except ValueError as e:
-            trace = sys.exc_info()[2]
-            raise ParseException(str(e)), None, trace
+            raise_from(ParseException(str(e)), e)
 
     @staticmethod
     def _filter_proto(msg, make_copy=True):
@@ -364,7 +364,7 @@ class ClientLogin(Call):
             source = 'gmusicapi-' + gmusicapi.__version__
 
         return dict(
-            (name, val) for (name, val) in locals().items()
+            (name, val) for (name, val) in list(locals().items())
             if name in set(('Email', 'Passwd', 'accountType', 'service', 'source',
                             'logintoken', 'logincaptcha'))
         )

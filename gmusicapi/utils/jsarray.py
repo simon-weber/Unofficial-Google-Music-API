@@ -3,8 +3,10 @@
 """
 Tools to handle Google's ridiculous interchange format.
 """
+from future import standard_library
+standard_library.install_aliases()
 
-from StringIO import StringIO
+from io import StringIO
 from tokenize import generate_tokens
 
 from gmusicapi.compat import json

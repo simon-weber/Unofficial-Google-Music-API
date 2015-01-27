@@ -6,6 +6,7 @@ These tests all run against an actual Google Music account.
 Destructive modifications are not made, but if things go terrible wrong,
 an extra test playlist or song may result.
 """
+from builtins import str, range, object
 
 from collections import namedtuple
 from hashlib import md5
@@ -256,7 +257,7 @@ class ClientTests(object):
         # Otherwise, it should have been uploaded normally.
         assert_equal(not_uploaded, {})
         assert_equal(matched, {})
-        assert_equal(uploaded.keys(), [fname])
+        assert_equal(list(uploaded.keys()), [fname])
 
         user_sids.append(uploaded[fname])
 
@@ -765,7 +766,7 @@ class ClientTests(object):
     @plentry_test
     def mc_reorder_ple_forwards(self):
         for from_pos, to_pos in [pair for pair in
-                                 itertools.product(range(len(self.plentry_ids)), repeat=2)
+                                 itertools.product(list(range(len(self.plentry_ids))), repeat=2)
                                  if pair[0] < pair[1]]:
             self._mc_test_ple_reodering(from_pos, to_pos)
 
@@ -773,7 +774,7 @@ class ClientTests(object):
     def mc_reorder_ple_backwards(self):
         playlist_len = len(self.plentry_ids)
         for from_pos, to_pos in [pair for pair in
-                                 itertools.product(range(playlist_len), repeat=2)
+                                 itertools.product(list(range(playlist_len)), repeat=2)
                                  if pair[0] > pair[1]]:
             self._mc_test_ple_reodering(from_pos, to_pos)
 
@@ -824,7 +825,7 @@ class ClientTests(object):
         res.pop('playlist_hits')
 
         with Check() as check:
-            for type_, hits in res.items():
+            for type_, hits in list(res.items()):
                 check.true(len(hits) > 0, "%s had %s hits, expected > 0" % (type_, len(hits)))
 
     @test

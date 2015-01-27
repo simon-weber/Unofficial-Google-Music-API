@@ -2,6 +2,9 @@
 # -*- coding: utf-8 -*-
 
 """Calls made by the mobile client."""
+from builtins import chr
+from builtins import zip
+from builtins import str
 
 import base64
 import copy
@@ -11,6 +14,7 @@ import hmac
 import sys
 import time
 from uuid import uuid1
+from future.utils import raise_from
 
 import validictory
 
@@ -258,8 +262,7 @@ class McCall(Call):
         try:
             return validictory.validate(msg, cls._res_schema)
         except ValueError as e:
-            trace = sys.exc_info()[2]
-            raise ValidationException(str(e)), None, trace
+            raise_from(ValidationException(str(e)), e)
 
     @classmethod
     def check_success(cls, response, msg):
@@ -644,7 +647,7 @@ class BatchMutatePlaylistEntries(McBatchMutateCall):
                             'lastModifiedTimestamp', 'playlistId',
                             'source', 'trackId'])
 
-        for key in mutation.keys():
+        for key in list(mutation.keys()):
             if key not in keys_to_keep:
                 del mutation[key]
 
@@ -830,7 +833,7 @@ class BatchMutateTracks(McBatchMutateCall):
             if key in track_dict:
                 del track_dict[key]
 
-        for key, default in {
+        for key, default in list({
             'playCount': 0,
             'rating': '0',
             'genre': '',
@@ -840,7 +843,7 @@ class BatchMutateTracks(McBatchMutateCall):
             'composer': '',
             'creationTimestamp': '-1',
             'totalDiscCount': 0,
-        }.items():
+        }.items()):
             track_dict.setdefault(key, default)
 
         # TODO unsure about this

@@ -17,7 +17,7 @@ for fname in glob(u'audiotest*'):
         continue
 
     # clear existing tags
-    for key in audio.tags.keys():
+    for key in list(audio.tags.keys()):
         del audio.tags[key]
 
     # write

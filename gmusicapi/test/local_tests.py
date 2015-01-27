@@ -3,6 +3,7 @@
 """
 Tests that don't hit the Google Music servers.
 """
+from builtins import range
 
 from collections import namedtuple
 import logging
@@ -42,8 +43,8 @@ test = test(groups=['local'])
 def longest_increasing_sub():
     lisi = utils.longest_increasing_subseq
     assert_equal(lisi([]), [])
-    assert_equal(lisi(range(10, 0, -1)), [1])
-    assert_equal(lisi(range(10, 20)), range(10, 20))
+    assert_equal(lisi(list(range(10, 0, -1))), [1])
+    assert_equal(lisi(list(range(10, 20))), list(range(10, 20)))
     assert_equal(lisi([3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5, 8, 9, 7, 9]),
                  [1, 2, 3, 5, 8, 9])
 

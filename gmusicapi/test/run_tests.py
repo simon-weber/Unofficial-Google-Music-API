@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
+from builtins import input
+from builtins import zip
 from collections import namedtuple
 from functools import partial, update_wrapper
 from getpass import getpass
@@ -51,7 +53,7 @@ def prompt_for_wc_auth():
 
     while not valid_wc_auth:
         print()
-        email = raw_input("Email: ")
+        email = input("Email: ")
         passwd = getpass()
 
         valid_wc_auth = wclient.login(email, passwd)
@@ -75,7 +77,7 @@ def retrieve_auth():
             print('on Travis but could not read auth from environ; quitting.')
             sys.exit(1)
 
-        wc_kwargs.update(zip(['email', 'password'], prompt_for_wc_auth()))
+        wc_kwargs.update(list(zip(['email', 'password'], prompt_for_wc_auth())))
 
     if mm_kwargs['oauth_credentials'] is None:
         # ignoring race

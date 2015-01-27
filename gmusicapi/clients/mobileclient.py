@@ -1,3 +1,4 @@
+from builtins import str
 from collections import defaultdict
 import datetime
 from operator import itemgetter
@@ -185,7 +186,7 @@ class Mobileclient(_Base):
 
         return res['mutate_response'][0]['id']
 
-    @utils.accept_singleton(basestring)
+    @utils.accept_singleton(str)
     @utils.enforce_ids_param
     @utils.empty_arg_shortcircuit
     def delete_songs(self, library_song_ids):
@@ -406,7 +407,7 @@ class Mobileclient(_Base):
 
         return entries
 
-    @utils.accept_singleton(basestring, 2)
+    @utils.accept_singleton(str, 2)
     @utils.enforce_id_param
     @utils.enforce_ids_param(position=2)
     @utils.empty_arg_shortcircuit(position=2)
@@ -428,7 +429,7 @@ class Mobileclient(_Base):
 
         return [e['id'] for e in res['mutate_response']]
 
-    @utils.accept_singleton(basestring, 1)
+    @utils.accept_singleton(str, 1)
     @utils.enforce_ids_param(position=1)
     @utils.empty_arg_shortcircuit(position=1)
     def remove_entries_from_playlist(self, entry_ids):
@@ -606,7 +607,7 @@ class Mobileclient(_Base):
 
         return res['mutate_response'][0]['id']
 
-    @utils.accept_singleton(basestring)
+    @utils.accept_singleton(str)
     @utils.enforce_ids_param
     @utils.empty_arg_shortcircuit
     def delete_stations(self, station_ids):

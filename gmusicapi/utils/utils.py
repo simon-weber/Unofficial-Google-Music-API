@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 """Utility functions used across api code."""
+from builtins import hex, str, range, object
+from past.builtins import basestring
 
 from bisect import bisect_left
 from distutils import spawn
@@ -29,7 +31,7 @@ per_client_logging = True
 
 # Map descriptor.CPPTYPE -> python type.
 _python_to_cpp_types = {
-    long: ('int32', 'int64', 'uint32', 'uint64'),
+    int: ('int32', 'int64', 'uint32', 'uint64'),
     float: ('double', 'float'),
     bool: ('bool',),
     str: ('string',),
@@ -37,7 +39,7 @@ _python_to_cpp_types = {
 
 cpp_type_to_python = dict(
     (getattr(FieldDescriptor, 'CPPTYPE_' + cpp.upper()), python)
-    for (python, cpplist) in _python_to_cpp_types.items()
+    for (python, cpplist) in list(_python_to_cpp_types.items())
     for cpp in cpplist
 )
 
@@ -144,10 +146,10 @@ def longest_increasing_subseq(seq):
     # predecessor[j] = linked list of indices of best subsequence ending
     # at seq[j], in reverse order
     predecessor = [-1]
-    for i in xrange(1, len(seq)):
+    for i in range(1, len(seq)):
         # Find j such that:  seq[head[j - 1]] < seq[i] <= seq[head[j]]
         # seq[head[j]] is increasing, so use binary search.
-        j = bisect_left([seq[head[idx]] for idx in xrange(len(head))], seq[i])
+        j = bisect_left([seq[head[idx]] for idx in range(len(head))], seq[i])
 
         if j == len(head):
             head.append(i)
@@ -244,7 +246,7 @@ class DocstringInheritMeta(type):
                 if doc:
                     clsdict['__doc__'] = doc
                     break
-        for attr, attribute in clsdict.items():
+        for attr, attribute in list(clsdict.items()):
             if not attribute.__doc__:
                 for mro_cls in (mro_cls for base in bases for mro_cls in base.mro()
                                 if hasattr(mro_cls, attr)):
@@ -545,7 +547,7 @@ def truncate(x, max_els=100, recurse_levels=0):
                     trunc['...'] = '...'
                     return trunc
                 else:
-                    return dict(x.items()[:max_els] + [('...', '...')])
+                    return dict(list(x.items())[:max_els] + [('...', '...')])
 
             if isinstance(x, list):
                 trunc = x[:max_els] + ['...']
@@ -584,7 +586,7 @@ def empty_arg_shortcircuit(return_code='[]', position=1):
         if len(args[position]) == 0:
             # avoid polluting our namespace
             ns = {}
-            exec 'retval = ' + return_code in ns
+            exec('retval = ' + return_code, ns)
             return ns['retval']
         else:
             return function(*args, **kw)

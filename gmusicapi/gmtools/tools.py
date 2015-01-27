@@ -2,6 +2,12 @@
 
 """Tools for manipulating client-received Google Music data."""
 from __future__ import print_function
+from builtins import str
+from builtins import map
+from builtins import input
+from builtins import zip
+from builtins import next
+from builtins import object
 
 import operator
 import re
@@ -89,8 +95,7 @@ def reorder_to(l, order):
     """
 
     # Zip on ordering, sort by it, then remove ordering.
-    return map(lambda el: el[1],
-               sorted(zip(order, l), key=lambda el: el[0]))
+    return [el[1] for el in sorted(zip(order, l), key=lambda el: el[0])]
 
 
 def build_queries_from(f, regex, cap_types, cap_pr, encoding='ascii'):
@@ -112,7 +117,7 @@ def build_queries_from(f, regex, cap_types, cap_pr, encoding='ascii'):
             if matches:
                 # Zip captures to their types and order by priority to build a query.
                 query = reorder_to(
-                    zip(matches.groups(), cap_types),
+                    list(zip(matches.groups(), cap_types)),
                     cap_pr)
 
                 queries.append(query)
@@ -123,7 +128,7 @@ def build_queries_from(f, regex, cap_types, cap_pr, encoding='ascii'):
 def build_query_rep(query, divider=" - "):
     """Build a string representation of a query, without metadata types"""
 
-    return divider.join(map(lambda el: el[0], query))
+    return divider.join([el[0] for el in query])
 
 
 # Not mine. From: http://en.wikipedia.org/wiki/Function_composition_(computer_science)
@@ -193,8 +198,8 @@ class SongMatcher(object):
     ignore_caps = SearchModifier(
         # Change query and song to lowercase,
         # before comparing with ==.
-        unicode.lower,
-        unicode.lower,
+        str.lower,
+        str.lower,
         operator.eq
     )
 
@@ -249,7 +254,7 @@ class SongMatcher(object):
 
         while not (0 <= choice <= len(results)):
             try:
-                choice = int(raw_input("Choice: "))
+                choice = int(input("Choice: "))
             except:
                 pass
 
@@ -343,8 +348,8 @@ class SongMatcher(object):
             operator.eq))
 
         # Create the transformers by composing all of them.
-        q_t = compose(*map((lambda sm: sm.q_t), mods_to_apply))
-        s_t = compose(*map((lambda sm: sm.s_t), mods_to_apply))
+        q_t = compose(*list(map((lambda sm: sm.q_t), mods_to_apply)))
+        s_t = compose(*list(map((lambda sm: sm.s_t), mods_to_apply)))
 
         # Use the most outward comparator.
         comp = mods_to_apply[0].comp

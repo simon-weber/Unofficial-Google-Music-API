@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 """Calls made by the web client."""
+from builtins import str
+from builtins import range
 
 import base64
 import copy
@@ -9,6 +11,7 @@ import random
 import string
 import sys
 from hashlib import sha1
+from future.utils import raise_from
 
 import validictory
 
@@ -26,7 +29,7 @@ song_schema = {
     "type": "object",
     "properties": dict(
         (name, expt.get_schema()) for
-        name, expt in md_expectations.items()
+        name, expt in list(md_expectations.items())
     ),
     # don't allow metadata not in expectations
     "additionalProperties": False
@@ -102,8 +105,7 @@ class WcCall(Call):
         try:
             return validictory.validate(msg, cls._res_schema)
         except ValueError as e:
-            trace = sys.exc_info()[2]
-            raise ValidationException(str(e)), None, trace
+            raise_from(ValidationException(str(e)), e)
 
     @classmethod
     def check_success(cls, response, msg):
