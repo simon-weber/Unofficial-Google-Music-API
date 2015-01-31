@@ -5,8 +5,7 @@ from __future__ import absolute_import
 from builtins import *
 from future import standard_library
 standard_library.install_aliases()
-from builtins import zip
-from builtins import str
+
 # -*- coding: utf-8 -*-
 
 from urllib.parse import urlparse, parse_qsl

@@ -8,8 +8,6 @@ from __future__ import absolute_import
 from future import standard_library
 standard_library.install_aliases()
 from builtins import *
-from builtins import input
-from builtins import zip
 from collections import namedtuple
 from functools import partial, update_wrapper
 from getpass import getpass

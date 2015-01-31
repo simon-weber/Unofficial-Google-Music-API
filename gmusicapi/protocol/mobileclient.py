@@ -9,9 +9,6 @@ from __future__ import absolute_import
 from future import standard_library
 standard_library.install_aliases()
 from builtins import *
-from builtins import chr
-from builtins import zip
-from builtins import str
 
 import base64
 import copy

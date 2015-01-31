@@ -5,8 +5,6 @@ from __future__ import absolute_import
 from builtins import *
 from future import standard_library
 standard_library.install_aliases()
-from builtins import input
-from builtins import str
 import os
 from socket import gethostname
 import time

@@ -8,7 +8,6 @@ from __future__ import absolute_import
 from future import standard_library
 standard_library.install_aliases()
 from builtins import *
-from builtins import str
 from future.utils import raise_from
 from past.utils import old_div
 
