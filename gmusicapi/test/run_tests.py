@@ -6,15 +6,16 @@ from __future__ import unicode_literals
 from __future__ import division
 from __future__ import absolute_import
 from future import standard_library
+from future.utils import PY3, bind_method
+
 standard_library.install_aliases()
 from builtins import *
 from collections import namedtuple
-from functools import partial, update_wrapper
+import functools
 from getpass import getpass
 import logging
 import os
 import sys
-from types import MethodType
 
 from proboscis import TestProgram
 
@@ -98,10 +99,8 @@ def retrieve_auth():
 
 def freeze_method_kwargs(klass, method_name, **kwargs):
     method = getattr(klass, method_name)
-
-    setattr(klass, method_name, MethodType(
-        update_wrapper(partial(method, **kwargs), method),
-        None, klass))
+    partialfunc = functools.partialmethod if PY3 else functools.partial
+    bind_method(klass, method_name, partialfunc(method, **kwargs))
 
 
 def freeze_login_details(wc_kwargs, mm_kwargs):

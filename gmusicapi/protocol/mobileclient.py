@@ -447,7 +447,7 @@ class GetStreamUrl(McCall):
         'ZAPnhUkYwQ6y5DdQxWThbvhJHN8msQ1rqJw0ggKdufQjelrKuiGGJI30aswkgCWTD'
         'yHkTGK9ynlqTkJ5L4CiGGUabGeo8M6JTQ=='))
 
-    # bitwise and of _s1 and _s2 ascii, converted to string
+    # bitwise and of _s1 and _s2, converted to latin-1 encoded bytestring
     _key = ''.join([chr(c1 ^ c2) for (c1, c2) in zip(_s1, _s2)]).encode('latin-1')
 
     @classmethod
@@ -457,8 +457,8 @@ class GetStreamUrl(McCall):
         if salt is None:
             salt = str(int(time.time() * 1000))
 
-        mac = hmac.new(cls._key, song_id, sha1)
-        mac.update(salt)
+        mac = hmac.new(cls._key, song_id.encode('utf-8'), sha1)
+        mac.update(salt.encode('utf-8'))
         sig = base64.urlsafe_b64encode(mac.digest())[:-1]
 
         return sig, salt
