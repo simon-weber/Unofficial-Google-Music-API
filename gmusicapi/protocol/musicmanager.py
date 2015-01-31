@@ -2,6 +2,12 @@
 
 """Calls made by the Music Manager (related to uploading)."""
 from __future__ import division
+from __future__ import unicode_literals
+from __future__ import print_function
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import *
 from builtins import str
 from future.utils import raise_from
 from past.utils import old_div
@@ -10,7 +16,6 @@ import base64
 from collections import namedtuple
 import hashlib
 import os
-import sys
 
 import dateutil.parser
 from decorator import decorator

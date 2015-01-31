@@ -1,6 +1,13 @@
 # -*- coding: utf-8 -*-
 
 """Custom exceptions used across the project."""
+from __future__ import unicode_literals
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import *
 
 
 class CallFailure(Exception):

@@ -6,7 +6,14 @@ These tests all run against an actual Google Music account.
 Destructive modifications are not made, but if things go terrible wrong,
 an extra test playlist or song may result.
 """
-from builtins import str, range, object
+from __future__ import unicode_literals
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import *
+from builtins import range, object
 
 from collections import namedtuple
 from hashlib import md5

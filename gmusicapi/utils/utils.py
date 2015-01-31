@@ -1,8 +1,15 @@
 # -*- coding: utf-8 -*-
 
 """Utility functions used across api code."""
-from builtins import hex, str, range, object
-from past.builtins import basestring
+from __future__ import unicode_literals
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import *
+from builtins import hex, range, object
+from past.builtins import str
 
 from bisect import bisect_left
 from distutils import spawn
@@ -283,7 +290,7 @@ def enforce_id_param(position=1):
     @decorator
     def wrapper(function, *args, **kw):
 
-        if not isinstance(args[position], basestring):
+        if not isinstance(args[position], str):
             raise ValueError("Invalid param type in position %s;"
                              " expected an id (did you pass a dictionary?)" % position)
 
@@ -304,7 +311,7 @@ def enforce_ids_param(position=1):
     def wrapper(function, *args, **kw):
 
         if ((not isinstance(args[position], (list, tuple)) or
-             not all([isinstance(e, basestring) for e in args[position]]))):
+             not all([isinstance(e, str) for e in args[position]]))):
             raise ValueError("Invalid param type in position %s;"
                              " expected ids (did you pass dictionaries?)" % position)
 
@@ -485,7 +492,7 @@ def transcode_to_mp3(filepath, quality='320k', slice_start=None, slice_duration=
 
     if isinstance(quality, int):
         cmd.extend(['-q:a', str(quality)])
-    elif isinstance(quality, basestring):
+    elif isinstance(quality, str):
         cmd.extend(['-b:a', quality])
     else:
         raise ValueError("quality must be int or string, but received %r" % quality)
@@ -537,7 +544,7 @@ def truncate(x, max_els=100, recurse_levels=0):
 
     try:
         if len(x) > max_els:
-            if isinstance(x, basestring):
+            if isinstance(x, str):
                 return x[:max_els] + '...'
 
             if isinstance(x, dict):
