@@ -238,7 +238,7 @@ class ClientTests(object):
         # how long do deleted tracks get returned for?
         # will this return tracks I've deleted since...ever?
 
-        num_deleted = [t for t in lib if t['deleted']]
+        num_deleted = len([t for t in lib if t['deleted']])
         assert_true(num_deleted > 0)
 
     @test
