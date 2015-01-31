@@ -69,6 +69,8 @@ from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
 from future import standard_library
+from future.utils import native_str
+
 standard_library.install_aliases()
 from builtins import *
 
@@ -247,4 +249,5 @@ dynamic_docs += '\n\n'.join(
 )
 
 
-KnownMetadataFields = type('KnownMetadataFields', (defaultdict,), {'__doc__': dynamic_docs})
+KnownMetadataFields = type(native_str('KnownMetadataFields'),
+                           (defaultdict,), {'__doc__': dynamic_docs})

@@ -8,7 +8,6 @@ from __future__ import absolute_import
 from future import standard_library
 standard_library.install_aliases()
 from builtins import *
-from past.builtins import str
 
 from bisect import bisect_left
 from distutils import spawn

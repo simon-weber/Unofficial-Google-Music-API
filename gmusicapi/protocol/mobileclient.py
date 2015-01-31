@@ -440,13 +440,15 @@ class GetStreamUrl(McCall):
     # this call will redirect to the mp3
     static_allow_redirects = False
 
-    _s1 = base64.b64decode('VzeC4H4h+T2f0VI180nVX8x+Mb5HiTtGnKgH52Otj8ZCGDz9jRW'
-                           'yHb6QXK0JskSiOgzQfwTY5xgLLSdUSreaLVMsVVWfxfa8Rw==')
-    _s2 = base64.b64decode('ZAPnhUkYwQ6y5DdQxWThbvhJHN8msQ1rqJw0ggKdufQjelrKuiG'
-                           'GJI30aswkgCWTDyHkTGK9ynlqTkJ5L4CiGGUabGeo8M6JTQ==')
+    _s1 = bytes(base64.b64decode(
+        'VzeC4H4h+T2f0VI180nVX8x+Mb5HiTtGnKgH52Otj8ZCGDz9jRWyHb6QXK0JskSiO'
+        'gzQfwTY5xgLLSdUSreaLVMsVVWfxfa8Rw=='))
+    _s2 = bytes(base64.b64decode(
+        'ZAPnhUkYwQ6y5DdQxWThbvhJHN8msQ1rqJw0ggKdufQjelrKuiGGJI30aswkgCWTD'
+        'yHkTGK9ynlqTkJ5L4CiGGUabGeo8M6JTQ=='))
 
     # bitwise and of _s1 and _s2 ascii, converted to string
-    _key = ''.join([chr(ord(c1) ^ ord(c2)) for (c1, c2) in zip(_s1, _s2)])
+    _key = ''.join([chr(c1 ^ c2) for (c1, c2) in zip(_s1, _s2)]).encode('latin-1')
 
     @classmethod
     def get_signature(cls, song_id, salt=None):
