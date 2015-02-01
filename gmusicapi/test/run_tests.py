@@ -1,15 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
-from __future__ import absolute_import
+from __future__ import (unicode_literals, print_function, division,
+                        absolute_import)
 from future import standard_library
-from future.utils import PY3, bind_method
-
 standard_library.install_aliases()
 from builtins import *
+from future.utils import PY3, bind_method
+
 from collections import namedtuple
 import functools
 from getpass import getpass

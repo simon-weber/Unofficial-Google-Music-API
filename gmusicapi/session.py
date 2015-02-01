@@ -3,14 +3,11 @@
 """
 Sessions handle the details of authentication and transporting requests.
 """
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-from builtins import *
+from __future__ import (unicode_literals, print_function, division,
+                        absolute_import)
 from future import standard_library
 standard_library.install_aliases()
-from builtins import object
+from builtins import *
 from contextlib import closing
 import http.cookiejar
 
