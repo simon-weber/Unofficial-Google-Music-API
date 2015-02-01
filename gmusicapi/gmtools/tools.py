@@ -253,7 +253,7 @@ class SongMatcher(object):
         while not (0 <= choice <= len(results)):
             try:
                 choice = int(input("Choice: "))
-            except:
+            except ValueError:
                 pass
 
         return None if choice == 0 else [results[choice - 1]]

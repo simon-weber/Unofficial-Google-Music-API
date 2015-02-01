@@ -100,8 +100,7 @@ class Expectation(_Expectation):
 
     def get_schema(self):
         """Return a validictory schema for this key."""
-        schema = {}
-        schema["type"] = self.type
+        schema = {"type": self.type}
         if self.type == "string":
             schema["blank"] = True  # allow blank strings
         if self.optional:
