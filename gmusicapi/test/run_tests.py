@@ -80,7 +80,7 @@ def retrieve_auth():
             print('on Travis but could not read auth from environ; quitting.')
             sys.exit(1)
 
-        wc_kwargs.update(list(zip(['email', 'password'], prompt_for_wc_auth())))
+        wc_kwargs.update(zip(['email', 'password'], prompt_for_wc_auth()))
 
     if mm_kwargs['oauth_credentials'] is None:
         # ignoring race

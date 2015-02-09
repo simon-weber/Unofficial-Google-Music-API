@@ -2,7 +2,7 @@
 from __future__ import (unicode_literals, print_function, division,
                         absolute_import)
 from future import standard_library
-from future.utils import viewitems
+from future.utils import viewitems, viewvalues
 standard_library.install_aliases()
 from builtins import *
 
@@ -455,7 +455,7 @@ class Musicmanager(_Base):
 
         # Upload metadata; the server tells us what to do next.
         res = self._make_call(musicmanager.UploadMetadata,
-                              [t for (path, t) in list(local_info.values())],
+                              [t for (path, t) in viewvalues(local_info)],
                               self.uploader_id)
 
         # TODO checking for proper contents should be handled in verification
@@ -522,7 +522,7 @@ class Musicmanager(_Base):
             # TODO reordering requests could avoid wasting time waiting for reup sync
             self._make_call(musicmanager.UpdateUploadState, 'start', self.uploader_id)
 
-            for server_id, (path, track, do_not_rematch) in list(to_upload.items()):
+            for server_id, (path, track, do_not_rematch) in viewitems(to_upload):
                 # It can take a few tries to get an session.
                 should_retry = True
                 attempts = 0

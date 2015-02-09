@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, print_function, division,
 from future import standard_library
 standard_library.install_aliases()
 from builtins import *
-from future.utils import raise_from
+from future.utils import raise_from, viewitems
 from past.utils import old_div
 
 import base64
@@ -211,7 +211,7 @@ class UploadMetadata(MmCall):
         elif isinstance(audio, mutagen.asf.ASF):
             # WMA entries store more info than just the value.
             # Monkeypatch in a dict {key: value} to keep interface the same for all filetypes.
-            asf_dict = dict((k, [ve.value for ve in v]) for (k, v) in list(audio.tags.as_dict().items()))
+            asf_dict = dict((k, [ve.value for ve in v]) for (k, v) in viewitems(audio.tags.as_dict()))
             audio.tags = asf_dict
 
         track.duration_millis = int(audio.info.length * 1000)
@@ -275,11 +275,11 @@ class UploadMetadata(MmCall):
             list(cls.field_map.items())
         )
 
-        for mutagen_f, track_f in list(fields.items()):
+        for mutagen_f, track_f in viewitems(fields):
             if mutagen_f in audio:
                 track_set(track_f, audio[mutagen_f][0])
 
-        for mutagen_f, (track_f, track_total_f) in list(cls.count_fields.items()):
+        for mutagen_f, (track_f, track_total_f) in viewitems(cls.count_fields):
             if mutagen_f in audio:
                 numstrs = str(audio[mutagen_f][0]).split("/")
                 track_set(track_f, numstrs[0])

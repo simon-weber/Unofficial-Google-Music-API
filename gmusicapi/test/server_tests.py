@@ -12,6 +12,7 @@ from future import standard_library
 standard_library.install_aliases()
 from builtins import *
 
+from future.utils import viewitems
 from collections import namedtuple
 from hashlib import md5
 import itertools
@@ -770,7 +771,7 @@ class ClientTests(object):
     @plentry_test
     def mc_reorder_ple_forwards(self):
         for from_pos, to_pos in [pair for pair in
-                                 itertools.product(list(range(len(self.plentry_ids))), repeat=2)
+                                 itertools.product(range(len(self.plentry_ids)), repeat=2)
                                  if pair[0] < pair[1]]:
             self._mc_test_ple_reodering(from_pos, to_pos)
 
@@ -778,7 +779,7 @@ class ClientTests(object):
     def mc_reorder_ple_backwards(self):
         playlist_len = len(self.plentry_ids)
         for from_pos, to_pos in [pair for pair in
-                                 itertools.product(list(range(playlist_len)), repeat=2)
+                                 itertools.product(range(playlist_len), repeat=2)
                                  if pair[0] > pair[1]]:
             self._mc_test_ple_reodering(from_pos, to_pos)
 
@@ -829,7 +830,7 @@ class ClientTests(object):
         res.pop('playlist_hits')
 
         with Check() as check:
-            for type_, hits in list(res.items()):
+            for type_, hits in viewitems(res):
                 check.true(len(hits) > 0, "%s had %s hits, expected > 0" % (type_, len(hits)))
 
     @test

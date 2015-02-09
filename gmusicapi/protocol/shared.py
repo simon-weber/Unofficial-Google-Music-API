@@ -4,6 +4,7 @@
 from __future__ import (unicode_literals, print_function, division,
                         absolute_import)
 from future import standard_library
+from future.utils import viewitems
 standard_library.install_aliases()
 from builtins import *
 
@@ -87,7 +88,7 @@ class BuildRequestMeta(type):
         def req_closure(config=config):
             def build_request(cls, *args, **kwargs):
                 req_kwargs = {}
-                for key, val in list(config.items()):
+                for key, val in viewitems(config):
                     if hasattr(val, '__call__'):
                         val = val(*args, **kwargs)
 
@@ -202,7 +203,7 @@ class Call(with_metaclass(BuildRequestMeta, object)):
             log.debug("%s(args=%s, kwargs=%s)",
                       call_name,
                       [utils.truncate(a) for a in args],
-                      dict((k, utils.truncate(v)) for (k, v) in list(kwargs.items()))
+                      dict((k, utils.truncate(v)) for (k, v) in viewitems(kwargs))
                       )
         else:
             log.debug("%s(<omitted>)", call_name)
@@ -365,7 +366,7 @@ class ClientLogin(Call):
             source = 'gmusicapi-' + gmusicapi.__version__
 
         return dict(
-            (name, val) for (name, val) in list(locals().items())
+            (name, val) for (name, val) in viewitems(locals())
             if name in set(('Email', 'Passwd', 'accountType', 'service', 'source',
                             'logintoken', 'logincaptcha'))
         )
