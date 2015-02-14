@@ -7,7 +7,6 @@ from future import standard_library
 standard_library.install_aliases()
 from builtins import *
 
-from future.utils import viewitems
 from bisect import bisect_left
 from distutils import spawn
 import errno
@@ -15,7 +14,6 @@ import functools
 import inspect
 import logging
 import os
-import sys
 import re
 import subprocess
 import time
@@ -44,7 +42,7 @@ _python_to_cpp_types = {
 
 cpp_type_to_python = dict(
     (getattr(FieldDescriptor, 'CPPTYPE_' + cpp.upper()), python)
-    for (python, cpplist) in viewitems(_python_to_cpp_types)
+    for (python, cpplist) in _python_to_cpp_types.items()
     for cpp in cpplist
 )
 
@@ -251,7 +249,7 @@ class DocstringInheritMeta(type):
                 if doc:
                     clsdict['__doc__'] = doc
                     break
-        for attr, attribute in viewitems(clsdict):
+        for attr, attribute in clsdict.items():
             if not attribute.__doc__:
                 for mro_cls in (mro_cls for base in bases for mro_cls in base.mro()
                                 if hasattr(mro_cls, attr)):

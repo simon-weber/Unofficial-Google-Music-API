@@ -5,7 +5,6 @@
 from __future__ import (unicode_literals, print_function, division,
                         absolute_import)
 from future import standard_library
-from future.utils import viewitems
 standard_library.install_aliases()
 from builtins import *
 
@@ -14,7 +13,6 @@ import copy
 from datetime import datetime
 from hashlib import sha1
 import hmac
-import sys
 import time
 from uuid import uuid1
 from future.utils import raise_from
@@ -837,7 +835,7 @@ class BatchMutateTracks(McBatchMutateCall):
             if key in track_dict:
                 del track_dict[key]
 
-        for key, default in viewitems({
+        for key, default in {
             'playCount': 0,
             'rating': '0',
             'genre': '',
@@ -847,7 +845,7 @@ class BatchMutateTracks(McBatchMutateCall):
             'composer': '',
             'creationTimestamp': '-1',
             'totalDiscCount': 0,
-        }):
+        }.items():
             track_dict.setdefault(key, default)
 
         # TODO unsure about this

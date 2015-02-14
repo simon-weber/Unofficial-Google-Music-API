@@ -13,7 +13,7 @@ import hmac
 import random
 import string
 from hashlib import sha1
-from future.utils import raise_from, viewitems
+from future.utils import raise_from
 
 import validictory
 
@@ -31,7 +31,7 @@ song_schema = {
     "type": "object",
     "properties": dict(
         (name, expt.get_schema()) for
-        name, expt in viewitems(md_expectations)
+        name, expt in md_expectations.items()
     ),
     # don't allow metadata not in expectations
     "additionalProperties": False

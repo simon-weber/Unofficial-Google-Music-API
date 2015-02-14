@@ -12,7 +12,6 @@ from future import standard_library
 standard_library.install_aliases()
 from builtins import *
 
-from future.utils import viewitems
 from collections import namedtuple
 from hashlib import md5
 import itertools
@@ -830,7 +829,7 @@ class ClientTests(object):
         res.pop('playlist_hits')
 
         with Check() as check:
-            for type_, hits in viewitems(res):
+            for type_, hits in res.items():
                 check.true(len(hits) > 0, "%s had %s hits, expected > 0" % (type_, len(hits)))
 
     @test
