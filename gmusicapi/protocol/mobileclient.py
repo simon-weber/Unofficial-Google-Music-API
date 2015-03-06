@@ -424,6 +424,11 @@ class ListTracks(McListCall):
     static_method = 'POST'
     static_url = sj_url + 'trackfeed'
 
+class GetDevices(McCall):
+    static_headers = {'Content-Type': 'application/json'}
+    static_params = {'alt': 'json'}
+    static_method = 'GET'
+    static_url = sj_url + 'devicemanagementinfo'
 
 class GetStreamUrl(McCall):
     static_method = 'GET'

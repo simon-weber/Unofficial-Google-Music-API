@@ -1095,3 +1095,43 @@ class Mobileclient(_Base):
 
         # An invalid parent genre won't respond with a genres key.
         return res.get('genres', [])
+
+    def get_registered_devices(self):
+        """
+        Returns a list of dictionaries representing devices associated with the account.
+
+        Performing the :class:`Musicmanager` OAuth flow will register a device
+        of type ``'DESKTOP_APP'``.
+
+        Installing the Android Google Music app and logging into it will
+        register a device of type ``'ANDROID'``, which is required for streaming with
+        the :class:`Mobileclient`.
+
+        Here is an example response::
+
+        	{
+				'kind': 'sj#userClientIdList',
+				'data': {
+					'items': [
+					{
+						u'kind': u'sj#devicemanagementinfo',
+						u'smartPhone': True,
+						u'lastAccessedTimeMs': u'1425151370215',
+						u'friendlyName': u'Motorola Motorola XT1032',
+						u'type': u'ANDROID', 
+						u'id': '0x00112233aabbccdd',  # remove 0x when streaming
+					},
+					{
+						u'friendlyName': u't162055',
+						u'lastAccessedTimeMs': u'1417443656707',
+						u'kind': u'sj#devicemanagementinfo',
+						u'type': u'DESKTOP_APP',
+						u'id': u'd575773f79bcdf455b363a7cf15a894b5fb35ba5d7fbae236f8e8f8d07f59f35'
+					}]
+				}
+			}
+
+        """
+
+        res = self._make_call(mobileclient.GetDevices, '')
+        return res['data']['items']
