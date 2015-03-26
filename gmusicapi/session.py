@@ -3,8 +3,13 @@
 """
 Sessions handle the details of authentication and transporting requests.
 """
+from __future__ import (unicode_literals, print_function, division,
+                        absolute_import)
+from future import standard_library
+standard_library.install_aliases()
+from builtins import *
 from contextlib import closing
-import cookielib
+import http.cookiejar
 
 import oauth2client
 import httplib2  # included with oauth2client
@@ -149,7 +154,7 @@ class Mobileclient(Webclient):
         # Remove any webclient-specific cookies.
         # As of Feb 2014, sending these will cause a 403 when
         #  getting the stream url of an AA song.
-        self._rsession.cookies = cookielib.CookieJar()
+        self._rsession.cookies = http.cookiejar.CookieJar()
 
         return success
 

@@ -1,14 +1,19 @@
 # -*- coding: utf-8 -*-
 
 """Calls made by the web client."""
+from __future__ import (unicode_literals, print_function, division,
+                        absolute_import)
+from future import standard_library
+standard_library.install_aliases()
+from builtins import *
 
 import base64
 import copy
 import hmac
 import random
 import string
-import sys
 from hashlib import sha1
+from future.utils import raise_from
 
 import validictory
 
@@ -102,8 +107,7 @@ class WcCall(Call):
         try:
             return validictory.validate(msg, cls._res_schema)
         except ValueError as e:
-            trace = sys.exc_info()[2]
-            raise ValidationException(str(e)), None, trace
+            raise_from(ValidationException(str(e)), e)
 
     @classmethod
     def check_success(cls, response, msg):
@@ -405,9 +409,10 @@ class GetStreamUrl(WcCall):
 
         # without the track['type'] field we can't tell between 1 and 2, but
         # include slt/sig anyway; the server ignores the extra params.
-        key = '27f7313e-f75d-445a-ac99-56386a5fe879'
+        key = bytes(b'27f7313e-f75d-445a-ac99-56386a5fe879')
         salt = ''.join(random.choice(string.ascii_lowercase + string.digits) for x in range(12))
-        sig = base64.urlsafe_b64encode(hmac.new(key, (song_id + salt), sha1).digest())[:-1]
+        salted_id = (song_id + salt).encode('utf-8')
+        sig = base64.urlsafe_b64encode(hmac.new(key, salted_id, sha1).digest())[:-1]
 
         params = {
             'u': 0,

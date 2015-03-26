@@ -64,6 +64,12 @@ The above information is used to generate the documentation below.
 If you find an example to clarify these expectations, please `submit an issue
 <https://github.com/simon-weber/Unofficial-Google-Music-API/issues>`__.
 """
+from __future__ import (unicode_literals, print_function, division,
+                        absolute_import)
+from future import standard_library
+standard_library.install_aliases()
+from builtins import *
+from future.utils import native_str
 
 from collections import defaultdict, namedtuple
 
@@ -94,8 +100,7 @@ class Expectation(_Expectation):
 
     def get_schema(self):
         """Return a validictory schema for this key."""
-        schema = {}
-        schema["type"] = self.type
+        schema = {"type": self.type}
         if self.type == "string":
             schema["blank"] = True  # allow blank strings
         if self.optional:
@@ -240,4 +245,5 @@ dynamic_docs += '\n\n'.join(
 )
 
 
-KnownMetadataFields = type('KnownMetadataFields', (defaultdict,), {'__doc__': dynamic_docs})
+KnownMetadataFields = type(native_str('KnownMetadataFields'),
+                           (defaultdict,), {'__doc__': dynamic_docs})

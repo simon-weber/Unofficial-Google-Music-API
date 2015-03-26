@@ -6,6 +6,11 @@ These tests all run against an actual Google Music account.
 Destructive modifications are not made, but if things go terrible wrong,
 an extra test playlist or song may result.
 """
+from __future__ import (unicode_literals, print_function, division,
+                        absolute_import)
+from future import standard_library
+standard_library.install_aliases()
+from builtins import *
 
 from collections import namedtuple
 from hashlib import md5
@@ -232,7 +237,7 @@ class ClientTests(object):
         # how long do deleted tracks get returned for?
         # will this return tracks I've deleted since...ever?
 
-        num_deleted = [t for t in lib if t['deleted']]
+        num_deleted = len([t for t in lib if t['deleted']])
         assert_true(num_deleted > 0)
 
     @test
@@ -257,7 +262,7 @@ class ClientTests(object):
         # Otherwise, it should have been uploaded normally.
         assert_equal(not_uploaded, {})
         assert_equal(matched, {})
-        assert_equal(uploaded.keys(), [fname])
+        assert_equal(list(uploaded.keys()), [fname])
 
         user_sids.append(uploaded[fname])
 

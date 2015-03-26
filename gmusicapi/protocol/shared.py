@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 
 """Definitions shared by multiple clients."""
+from __future__ import (unicode_literals, print_function, division,
+                        absolute_import)
+from future import standard_library
+standard_library.install_aliases()
+from builtins import *
 
 from collections import namedtuple
-import sys
 
 from google.protobuf.descriptor import FieldDescriptor
 
@@ -15,6 +19,7 @@ from gmusicapi.exceptions import (
 from gmusicapi.utils import utils
 
 import requests
+from future.utils import with_metaclass, raise_from
 
 log = utils.DynamicClientLogger(__name__)
 
@@ -96,7 +101,7 @@ class BuildRequestMeta(type):
         return new_cls
 
 
-class Call(object):
+class Call(with_metaclass(BuildRequestMeta, object)):
     """
     Clients should use Call.perform().
 
@@ -147,8 +152,6 @@ class Call(object):
 
     Calls are organized semantically, so one endpoint might have multiple calls.
     """
-
-    __metaclass__ = BuildRequestMeta
 
     gets_logged = True
     fail_on_non_200 = True
@@ -252,14 +255,13 @@ class Call(object):
                 raise
 
             # otherwise, reraise a new exception with our req/res context
-            trace = sys.exc_info()[2]
             err_msg = ("{e_message}\n"
                        "(requests kwargs: {req_kwargs!r})\n"
                        "(response was: {content!r})").format(
                            e_message=e.message,
                            req_kwargs=safe_req_kwargs,
                            content=response.content)
-            raise CallFailure(err_msg, e.callname), None, trace
+            raise_from(CallFailure(err_msg, e.callname), e)
 
         except ValidationException as e:
             # TODO shouldn't be using formatting
@@ -288,8 +290,7 @@ class Call(object):
         try:
             return json.loads(text)
         except ValueError as e:
-            trace = sys.exc_info()[2]
-            raise ParseException(str(e)), None, trace
+            raise_from(ParseException(str(e)), e)
 
     @staticmethod
     def _filter_proto(msg, make_copy=True):

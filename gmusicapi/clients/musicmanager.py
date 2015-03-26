@@ -1,7 +1,14 @@
+# -*- coding: utf-8 -*-
+from __future__ import (unicode_literals, print_function, division,
+                        absolute_import)
+from future import standard_library
+standard_library.install_aliases()
+from builtins import *
+
 import os
 from socket import gethostname
 import time
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from uuid import getnode as getmac
 import webbrowser
 
@@ -74,18 +81,18 @@ class Musicmanager(_Base):
         flow = OAuth2WebServerFlow(*musicmanager.oauth)
 
         auth_uri = flow.step1_get_authorize_url()
-        print
-        print "Visit the following url:\n %s" % auth_uri
+        print()
+        print("Visit the following url:\n %s" % auth_uri)
 
         if open_browser:
-            print
-            print 'Opening your browser to it now...',
+            print()
+            print('Opening your browser to it now...', end=' ')
             webbrowser.open(auth_uri)
-            print 'done.'
-            print "If you don't see your browser, you can just copy and paste the url."
-            print
+            print('done.')
+            print("If you don't see your browser, you can just copy and paste the url.")
+            print()
 
-        code = raw_input("Follow the prompts,"
+        code = input("Follow the prompts,"
                          " then paste the auth code here and hit enter: ")
 
         credentials = flow.step2_exchange(code)
@@ -165,7 +172,7 @@ class Musicmanager(_Base):
         Return True on success; see :py:func:`login` for params.
         """
 
-        if isinstance(oauth_credentials, basestring):
+        if isinstance(oauth_credentials, str):
             oauth_file = oauth_credentials
             if oauth_file == OAUTH_FILEPATH:
                 utils.make_sure_path_exists(os.path.dirname(OAUTH_FILEPATH), 0o700)
@@ -345,8 +352,7 @@ class Musicmanager(_Base):
 
         cd_header = response.headers['content-disposition']
 
-        filename = urllib.unquote(cd_header.split("filename*=UTF-8''")[-1])
-        filename = filename.decode('utf-8')
+        filename = urllib.parse.unquote(cd_header.split("filename*=UTF-8''")[-1])
 
         return (filename, response.content)
 
@@ -356,7 +362,7 @@ class Musicmanager(_Base):
     #     #protocol incorrect here...
     #     return (quota.maximumTracks, quota.totalTracks, quota.availableTracks)
 
-    @utils.accept_singleton(basestring)
+    @utils.accept_singleton(str)
     @utils.empty_arg_shortcircuit(return_code='{}')
     def upload(self, filepaths, transcode_quality='320k', enable_matching=False):
         """Uploads the given filepaths.

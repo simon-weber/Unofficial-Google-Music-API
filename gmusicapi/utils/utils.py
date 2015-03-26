@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 
 """Utility functions used across api code."""
+from __future__ import (unicode_literals, print_function, division,
+                        absolute_import)
+from future import standard_library
+standard_library.install_aliases()
+from builtins import *
 
 from bisect import bisect_left
 from distutils import spawn
@@ -29,7 +34,7 @@ per_client_logging = True
 
 # Map descriptor.CPPTYPE -> python type.
 _python_to_cpp_types = {
-    long: ('int32', 'int64', 'uint32', 'uint64'),
+    int: ('int32', 'int64', 'uint32', 'uint64'),
     float: ('double', 'float'),
     bool: ('bool',),
     str: ('string',),
@@ -144,10 +149,10 @@ def longest_increasing_subseq(seq):
     # predecessor[j] = linked list of indices of best subsequence ending
     # at seq[j], in reverse order
     predecessor = [-1]
-    for i in xrange(1, len(seq)):
+    for i in range(1, len(seq)):
         # Find j such that:  seq[head[j - 1]] < seq[i] <= seq[head[j]]
         # seq[head[j]] is increasing, so use binary search.
-        j = bisect_left([seq[head[idx]] for idx in xrange(len(head))], seq[i])
+        j = bisect_left([seq[head[idx]] for idx in range(len(head))], seq[i])
 
         if j == len(head):
             head.append(i)
@@ -281,7 +286,7 @@ def enforce_id_param(position=1):
     @decorator
     def wrapper(function, *args, **kw):
 
-        if not isinstance(args[position], basestring):
+        if not isinstance(args[position], str):
             raise ValueError("Invalid param type in position %s;"
                              " expected an id (did you pass a dictionary?)" % position)
 
@@ -302,7 +307,7 @@ def enforce_ids_param(position=1):
     def wrapper(function, *args, **kw):
 
         if ((not isinstance(args[position], (list, tuple)) or
-             not all([isinstance(e, basestring) for e in args[position]]))):
+             not all([isinstance(e, str) for e in args[position]]))):
             raise ValueError("Invalid param type in position %s;"
                              " expected ids (did you pass dictionaries?)" % position)
 
@@ -438,12 +443,10 @@ def locate_mp3_transcoder():
             transcoder_details[transcoder] = 'not installed'
             continue
 
-        proc = subprocess.Popen(
-            [cmd_path, '-codecs'],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE)
+        with open(os.devnull, 'w') as void:
+            stdout = subprocess.check_output([cmd_path, '-codecs'],
+                                             stderr=void).decode('latin-1')
 
-        stdout, stderr = proc.communicate()
         mp3_encoding_support = ('libmp3lame' in stdout and 'disable-libmp3lame' not in stdout)
         if mp3_encoding_support:
             transcoder_details[transcoder] = "mp3 encoding support"
@@ -483,7 +486,7 @@ def transcode_to_mp3(filepath, quality='320k', slice_start=None, slice_duration=
 
     if isinstance(quality, int):
         cmd.extend(['-q:a', str(quality)])
-    elif isinstance(quality, basestring):
+    elif isinstance(quality, str):
         cmd.extend(['-b:a', quality])
     else:
         raise ValueError("quality must be int or string, but received %r" % quality)
@@ -535,7 +538,7 @@ def truncate(x, max_els=100, recurse_levels=0):
 
     try:
         if len(x) > max_els:
-            if isinstance(x, basestring):
+            if isinstance(x, str):
                 return x[:max_els] + '...'
 
             if isinstance(x, dict):
@@ -545,7 +548,7 @@ def truncate(x, max_els=100, recurse_levels=0):
                     trunc['...'] = '...'
                     return trunc
                 else:
-                    return dict(x.items()[:max_els] + [('...', '...')])
+                    return dict(list(x.items())[:max_els] + [('...', '...')])
 
             if isinstance(x, list):
                 trunc = x[:max_els] + ['...']
@@ -584,7 +587,7 @@ def empty_arg_shortcircuit(return_code='[]', position=1):
         if len(args[position]) == 0:
             # avoid polluting our namespace
             ns = {}
-            exec 'retval = ' + return_code in ns
+            exec('retval = ' + return_code, ns)
             return ns['retval']
         else:
             return function(*args, **kw)

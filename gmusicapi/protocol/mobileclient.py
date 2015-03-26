@@ -2,15 +2,20 @@
 # -*- coding: utf-8 -*-
 
 """Calls made by the mobile client."""
+from __future__ import (unicode_literals, print_function, division,
+                        absolute_import)
+from future import standard_library
+standard_library.install_aliases()
+from builtins import *
 
 import base64
 import copy
 from datetime import datetime
 from hashlib import sha1
 import hmac
-import sys
 import time
 from uuid import uuid1
+from future.utils import raise_from
 
 import validictory
 
@@ -181,7 +186,6 @@ sj_artist = {
         'albums': {'type': 'array', 'items': sj_album, 'required': False},
         'topTracks': {'type': 'array', 'items': sj_track, 'required': False},
         'total_albums': {'type': 'integer', 'required': False},
-        'artistBio': {'type': 'string', 'required': False},
         'artist_bio_attribution': sj_attribution.copy(),
     }
 }
@@ -261,8 +265,7 @@ class McCall(Call):
         try:
             return validictory.validate(msg, cls._res_schema)
         except ValueError as e:
-            trace = sys.exc_info()[2]
-            raise ValidationException(str(e)), None, trace
+            raise_from(ValidationException(str(e)), e)
 
     @classmethod
     def check_success(cls, response, msg):
@@ -436,13 +439,15 @@ class GetStreamUrl(McCall):
     # this call will redirect to the mp3
     static_allow_redirects = False
 
-    _s1 = base64.b64decode('VzeC4H4h+T2f0VI180nVX8x+Mb5HiTtGnKgH52Otj8ZCGDz9jRW'
-                           'yHb6QXK0JskSiOgzQfwTY5xgLLSdUSreaLVMsVVWfxfa8Rw==')
-    _s2 = base64.b64decode('ZAPnhUkYwQ6y5DdQxWThbvhJHN8msQ1rqJw0ggKdufQjelrKuiG'
-                           'GJI30aswkgCWTDyHkTGK9ynlqTkJ5L4CiGGUabGeo8M6JTQ==')
+    _s1 = bytes(base64.b64decode(
+        'VzeC4H4h+T2f0VI180nVX8x+Mb5HiTtGnKgH52Otj8ZCGDz9jRWyHb6QXK0JskSiO'
+        'gzQfwTY5xgLLSdUSreaLVMsVVWfxfa8Rw=='))
+    _s2 = bytes(base64.b64decode(
+        'ZAPnhUkYwQ6y5DdQxWThbvhJHN8msQ1rqJw0ggKdufQjelrKuiGGJI30aswkgCWTD'
+        'yHkTGK9ynlqTkJ5L4CiGGUabGeo8M6JTQ=='))
 
-    # bitwise and of _s1 and _s2 ascii, converted to string
-    _key = ''.join([chr(ord(c1) ^ ord(c2)) for (c1, c2) in zip(_s1, _s2)])
+    # bitwise and of _s1 and _s2, converted to latin-1 encoded bytestring
+    _key = ''.join([chr(c1 ^ c2) for (c1, c2) in zip(_s1, _s2)]).encode('latin-1')
 
     @classmethod
     def get_signature(cls, song_id, salt=None):
@@ -451,8 +456,8 @@ class GetStreamUrl(McCall):
         if salt is None:
             salt = str(int(time.time() * 1000))
 
-        mac = hmac.new(cls._key, song_id, sha1)
-        mac.update(salt)
+        mac = hmac.new(cls._key, song_id.encode('utf-8'), sha1)
+        mac.update(salt.encode('utf-8'))
         sig = base64.urlsafe_b64encode(mac.digest())[:-1]
 
         return sig, salt
@@ -651,7 +656,7 @@ class BatchMutatePlaylistEntries(McBatchMutateCall):
                             'lastModifiedTimestamp', 'playlistId',
                             'source', 'trackId'])
 
-        for key in mutation.keys():
+        for key in list(mutation.keys()):
             if key not in keys_to_keep:
                 del mutation[key]
 

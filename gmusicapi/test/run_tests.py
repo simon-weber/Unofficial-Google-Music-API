@@ -1,13 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import (unicode_literals, print_function, division,
+                        absolute_import)
+from future import standard_library
+standard_library.install_aliases()
+from builtins import *
+from future.utils import PY3, bind_method
+
 from collections import namedtuple
-from functools import partial, update_wrapper
+import functools
 from getpass import getpass
 import logging
 import os
 import sys
-from types import MethodType
 
 from proboscis import TestProgram
 
@@ -49,8 +55,8 @@ def prompt_for_wc_auth():
     valid_wc_auth = False
 
     while not valid_wc_auth:
-        print
-        email = raw_input("Email: ")
+        print()
+        email = input("Email: ")
         passwd = getpass()
 
         valid_wc_auth = wclient.login(email, passwd)
@@ -72,7 +78,7 @@ def retrieve_auth():
 
     if not all([wc_kwargs[arg] for arg in ('email', 'password')]):
         if os.environ.get('TRAVIS'):
-            print 'on Travis but could not read auth from environ; quitting.'
+            print('on Travis but could not read auth from environ; quitting.')
             sys.exit(1)
 
         wc_kwargs.update(zip(['email', 'password'], prompt_for_wc_auth()))
@@ -92,10 +98,8 @@ def retrieve_auth():
 
 def freeze_method_kwargs(klass, method_name, **kwargs):
     method = getattr(klass, method_name)
-
-    setattr(klass, method_name, MethodType(
-        update_wrapper(partial(method, **kwargs), method),
-        None, klass))
+    partialfunc = functools.partialmethod if PY3 else functools.partial
+    bind_method(klass, method_name, partialfunc(method, **kwargs))
 
 
 def freeze_login_details(wc_kwargs, mm_kwargs):
@@ -133,9 +137,9 @@ def main():
     try:
         TestProgram(module=sys.modules[__name__]).run_and_exit()
     except SystemExit as e:
-        print
+        print()
         if noticer.seen_message:
-            print '(failing build due to log warnings)'
+            print('(failing build due to log warnings)')
             sys.exit(1)
 
         if e.code is not None:
