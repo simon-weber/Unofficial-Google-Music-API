@@ -54,8 +54,8 @@ class Webclient(_Base):
         If this is needed, a warning will be logged during login (which will print to stderr
         in the default logging configuration).
 
-        Users of two-factor authentication will need to set an application-specific password
-        to log in.
+        Users of two-factor authentication will need to set an `application-specific password
+        <https://security.google.com/settings/security/apppasswords>` to log in.
         """
 
         if not self.session.login(email, password):
