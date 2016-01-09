@@ -4,13 +4,9 @@
 from __future__ import print_function, absolute_import, division, unicode_literals
 from future import standard_library
 standard_library.install_aliases()
-from builtins import str
-from builtins import range
 from builtins import *
-from builtins import object
 
 from collections import namedtuple
-import sys
 
 from google.protobuf.descriptor import FieldDescriptor
 
@@ -21,7 +17,7 @@ from gmusicapi.exceptions import (
 from gmusicapi.utils import utils
 
 import requests
-from future.utils import with_metaclass
+from future.utils import with_metaclass, raise_from
 
 log = utils.DynamicClientLogger(__name__)
 
@@ -257,14 +253,13 @@ class Call(with_metaclass(BuildRequestMeta, object)):
                 raise
 
             # otherwise, reraise a new exception with our req/res context
-            trace = sys.exc_info()[2]
             err_msg = ("{e_message}\n"
                        "(requests kwargs: {req_kwargs!r})\n"
                        "(response was: {content!r})").format(
                            e_message=e.message,
                            req_kwargs=safe_req_kwargs,
                            content=response.content)
-            raise CallFailure(err_msg, e.callname), None, trace
+            raise_from(CallFailure(err_msg, e.callname), e)
 
         except ValidationException as e:
             # TODO shouldn't be using formatting
@@ -293,8 +288,7 @@ class Call(with_metaclass(BuildRequestMeta, object)):
         try:
             return json.loads(text)
         except ValueError as e:
-            trace = sys.exc_info()[2]
-            raise ParseException(str(e)), None, trace
+            raise_from(ParseException(str(e)), e)
 
     @staticmethod
     def _filter_proto(msg, make_copy=True):

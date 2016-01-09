@@ -1,7 +1,6 @@
 from __future__ import print_function, absolute_import, division, unicode_literals
 from future import standard_library
 standard_library.install_aliases()
-from past.builtins import basestring
 from builtins import *
 import os
 from socket import gethostname
@@ -170,7 +169,7 @@ class Musicmanager(_Base):
         Return True on success; see :py:func:`login` for params.
         """
 
-        if isinstance(oauth_credentials, basestring):
+        if isinstance(oauth_credentials, str):
             oauth_file = oauth_credentials
             if oauth_file == OAUTH_FILEPATH:
                 utils.make_sure_path_exists(os.path.dirname(OAUTH_FILEPATH), 0o700)
@@ -361,7 +360,7 @@ class Musicmanager(_Base):
     #     #protocol incorrect here...
     #     return (quota.maximumTracks, quota.totalTracks, quota.availableTracks)
 
-    @utils.accept_singleton(basestring)
+    @utils.accept_singleton(str)
     @utils.empty_arg_shortcircuit(return_code='{}')
     def upload(self, filepaths, transcode_quality='320k', enable_matching=False):
         """Uploads the given filepaths.

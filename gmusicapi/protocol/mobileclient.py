@@ -3,6 +3,8 @@
 """Calls made by the mobile client."""
 from __future__ import print_function, absolute_import, division, unicode_literals
 from future import standard_library
+from future.utils import raise_from
+
 standard_library.install_aliases()
 from builtins import *
 from past.utils import old_div
@@ -12,7 +14,6 @@ import copy
 from datetime import datetime
 from hashlib import sha1
 import hmac
-import sys
 import time
 from uuid import uuid1
 
@@ -285,8 +286,7 @@ class McCall(Call):
         try:
             return validictory.validate(msg, cls._res_schema)
         except ValueError as e:
-            trace = sys.exc_info()[2]
-            raise ValidationException(str(e)), None, trace
+            raise_from(ValidationException(str(e)), e)
 
     @classmethod
     def check_success(cls, response, msg):
@@ -462,13 +462,13 @@ class GetStreamUrl(McCall):
     # this call will redirect to the mp3
     static_allow_redirects = False
 
-    _s1 = base64.b64decode('VzeC4H4h+T2f0VI180nVX8x+Mb5HiTtGnKgH52Otj8ZCGDz9jRW'
-                           'yHb6QXK0JskSiOgzQfwTY5xgLLSdUSreaLVMsVVWfxfa8Rw==')
-    _s2 = base64.b64decode('ZAPnhUkYwQ6y5DdQxWThbvhJHN8msQ1rqJw0ggKdufQjelrKuiG'
-                           'GJI30aswkgCWTDyHkTGK9ynlqTkJ5L4CiGGUabGeo8M6JTQ==')
+    _s1 = bytes(base64.b64decode('VzeC4H4h+T2f0VI180nVX8x+Mb5HiTtGnKgH52Otj8ZCGDz9jRW'
+                                 'yHb6QXK0JskSiOgzQfwTY5xgLLSdUSreaLVMsVVWfxfa8Rw=='))
+    _s2 = bytes(base64.b64decode('ZAPnhUkYwQ6y5DdQxWThbvhJHN8msQ1rqJw0ggKdufQjelrKuiG'
+                                 'GJI30aswkgCWTDyHkTGK9ynlqTkJ5L4CiGGUabGeo8M6JTQ=='))
 
     # bitwise and of _s1 and _s2 ascii, converted to string
-    _key = ''.join([chr(ord(c1) ^ ord(c2)) for (c1, c2) in zip(_s1, _s2)])
+    _key = ''.join([chr(c1 ^ c2) for (c1, c2) in zip(_s1, _s2)]).encode("ascii")
 
     @classmethod
     def get_signature(cls, song_id, salt=None):

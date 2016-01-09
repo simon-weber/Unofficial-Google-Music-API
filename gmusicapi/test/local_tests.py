@@ -31,8 +31,8 @@ jsarray_filenames = [base + '.jsarray' for base in ('searchresult', 'fetchartist
 
 test_file_dir = os.path.dirname(os.path.abspath(__file__))
 for filepath in [os.path.join(test_file_dir, p) for p in jsarray_filenames]:
-    with open(filepath, 'r') as f:
-        jsarray_samples.append(f.read().decode('utf-8'))
+    with open(filepath, 'r', encoding="utf-8") as f:
+        jsarray_samples.append(f.read())
 
 # TODO test gather_local, transcoding
 

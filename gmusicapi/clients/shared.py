@@ -1,7 +1,6 @@
 from future import standard_library
 standard_library.install_aliases()
 from builtins import *
-from builtins import object
 import logging
 
 from gmusicapi.utils import utils

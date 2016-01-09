@@ -3,6 +3,8 @@
 """Calls made by the Music Manager (related to uploading)."""
 from __future__ import print_function, absolute_import, division, unicode_literals
 from future import standard_library
+from future.utils import raise_from
+
 standard_library.install_aliases()
 from builtins import *
 from past.utils import old_div
@@ -11,7 +13,6 @@ import base64
 from collections import namedtuple
 import hashlib
 import os
-import sys
 
 import dateutil.parser
 from decorator import decorator
@@ -91,9 +92,7 @@ class MmCall(Call):
         try:
             res_msg.ParseFromString(response.content)
         except DecodeError as e:
-            trace = sys.exc_info()[2]
-            raise ParseException(str(e)), None, trace
-            pass
+            raise_from(ParseException(str(e)), e)
 
         return res_msg
 
@@ -393,7 +392,7 @@ class GetUploadSession(MmCall):
         # Insert the inline info.
         for key in inlined:
             payload = inlined[key]
-            if not isinstance(payload, basestring):
+            if not isinstance(payload, str):
                 payload = str(payload)
 
             message['createSessionRequest']['fields'].append(

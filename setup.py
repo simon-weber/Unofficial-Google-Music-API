@@ -54,6 +54,7 @@ setup(
         'pyopenssl',
         'ndg-httpsclient',
         'pyasn1',
+        'future',
     ] + dynamic_requires,
     classifiers=[
         'Development Status :: 4 - Beta',

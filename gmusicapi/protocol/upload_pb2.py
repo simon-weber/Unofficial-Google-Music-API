@@ -382,7 +382,7 @@ _CHALLENGEINFO = descriptor.Descriptor(
     descriptor.FieldDescriptor(
       name='client_track_id', full_name='ChallengeInfo.client_track_id', index=0,
       number=1, type=9, cpp_type=9, label=2,
-      has_default_value=False, default_value=str("", "utf-8"),
+      has_default_value=False, default_value=str(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -403,7 +403,7 @@ _CHALLENGEINFO = descriptor.Descriptor(
     descriptor.FieldDescriptor(
       name='challenge_user_id', full_name='ChallengeInfo.challenge_user_id', index=3,
       number=4, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=str("", "utf-8"),
+      has_default_value=False, default_value=str(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -550,7 +550,7 @@ _UPLOADPLAYLISTREQUEST = descriptor.Descriptor(
     descriptor.FieldDescriptor(
       name='uploader_id', full_name='UploadPlaylistRequest.uploader_id', index=2,
       number=3, type=9, cpp_type=9, label=2,
-      has_default_value=False, default_value=str("", "utf-8"),
+      has_default_value=False, default_value=str(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -585,14 +585,14 @@ _PLAYLISTRESPONSE = descriptor.Descriptor(
     descriptor.FieldDescriptor(
       name='client_id', full_name='PlaylistResponse.client_id', index=1,
       number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=str("", "utf-8"),
+      has_default_value=False, default_value=str(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     descriptor.FieldDescriptor(
       name='server_id', full_name='PlaylistResponse.server_id', index=2,
       number=3, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=str("", "utf-8"),
+      has_default_value=False, default_value=str(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -662,7 +662,7 @@ _UPLOADPLAYLISTENTRYREQUEST = descriptor.Descriptor(
     descriptor.FieldDescriptor(
       name='uploader_id', full_name='UploadPlaylistEntryRequest.uploader_id', index=2,
       number=3, type=9, cpp_type=9, label=2,
-      has_default_value=False, default_value=str("", "utf-8"),
+      has_default_value=False, default_value=str(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -697,14 +697,14 @@ _PLAYLISTENTRYRESPONSE = descriptor.Descriptor(
     descriptor.FieldDescriptor(
       name='client_id', full_name='PlaylistEntryResponse.client_id', index=1,
       number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=str("", "utf-8"),
+      has_default_value=False, default_value=str(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     descriptor.FieldDescriptor(
       name='server_id', full_name='PlaylistEntryResponse.server_id', index=2,
       number=3, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=str("", "utf-8"),
+      has_default_value=False, default_value=str(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -767,7 +767,7 @@ _UPLOADMETADATAREQUEST = descriptor.Descriptor(
     descriptor.FieldDescriptor(
       name='uploader_id', full_name='UploadMetadataRequest.uploader_id', index=1,
       number=2, type=9, cpp_type=9, label=2,
-      has_default_value=False, default_value=str("", "utf-8"),
+      has_default_value=False, default_value=str(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -802,7 +802,7 @@ _UPDATEUPLOADSTATEREQUEST = descriptor.Descriptor(
     descriptor.FieldDescriptor(
       name='uploader_id', full_name='UpdateUploadStateRequest.uploader_id', index=1,
       number=2, type=9, cpp_type=9, label=2,
-      has_default_value=False, default_value=str("", "utf-8"),
+      has_default_value=False, default_value=str(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -831,7 +831,7 @@ _CLIENTSTATEREQUEST = descriptor.Descriptor(
     descriptor.FieldDescriptor(
       name='uploader_id', full_name='ClientStateRequest.uploader_id', index=0,
       number=1, type=9, cpp_type=9, label=2,
-      has_default_value=False, default_value=str("", "utf-8"),
+      has_default_value=False, default_value=str(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -964,7 +964,7 @@ _TRACKSAMPLERESPONSE = descriptor.Descriptor(
     descriptor.FieldDescriptor(
       name='client_track_id', full_name='TrackSampleResponse.client_track_id', index=0,
       number=1, type=9, cpp_type=9, label=2,
-      has_default_value=False, default_value=str("", "utf-8"),
+      has_default_value=False, default_value=str(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -978,14 +978,14 @@ _TRACKSAMPLERESPONSE = descriptor.Descriptor(
     descriptor.FieldDescriptor(
       name='server_track_id', full_name='TrackSampleResponse.server_track_id', index=2,
       number=3, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=str("", "utf-8"),
+      has_default_value=False, default_value=str(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     descriptor.FieldDescriptor(
       name='album_art_url', full_name='TrackSampleResponse.album_art_url', index=3,
       number=4, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=str("", "utf-8"),
+      has_default_value=False, default_value=str(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -1028,7 +1028,7 @@ _UPLOADSAMPLEREQUEST = descriptor.Descriptor(
     descriptor.FieldDescriptor(
       name='uploader_id', full_name='UploadSampleRequest.uploader_id', index=1,
       number=2, type=9, cpp_type=9, label=2,
-      has_default_value=False, default_value=str("", "utf-8"),
+      has_default_value=False, default_value=str(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -1091,7 +1091,7 @@ _IMAGEUNION = descriptor.Descriptor(
     descriptor.FieldDescriptor(
       name='album_art_url', full_name='ImageUnion.album_art_url', index=1,
       number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=str("", "utf-8"),
+      has_default_value=False, default_value=str(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -1212,14 +1212,14 @@ _TRACKSTOUPLOAD = descriptor.Descriptor(
     descriptor.FieldDescriptor(
       name='client_id', full_name='TracksToUpload.client_id', index=0,
       number=1, type=9, cpp_type=9, label=2,
-      has_default_value=False, default_value=str("", "utf-8"),
+      has_default_value=False, default_value=str(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     descriptor.FieldDescriptor(
       name='server_id', full_name='TracksToUpload.server_id', index=1,
       number=2, type=9, cpp_type=9, label=2,
-      has_default_value=False, default_value=str("", "utf-8"),
+      has_default_value=False, default_value=str(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -1255,7 +1255,7 @@ _GETJOBSREQUEST = descriptor.Descriptor(
     descriptor.FieldDescriptor(
       name='uploader_id', full_name='GetJobsRequest.uploader_id', index=0,
       number=1, type=9, cpp_type=9, label=2,
-      has_default_value=False, default_value=str("", "utf-8"),
+      has_default_value=False, default_value=str(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -1318,14 +1318,14 @@ _UPAUTHREQUEST = descriptor.Descriptor(
     descriptor.FieldDescriptor(
       name='uploader_id', full_name='UpAuthRequest.uploader_id', index=0,
       number=1, type=9, cpp_type=9, label=2,
-      has_default_value=False, default_value=str("", "utf-8"),
+      has_default_value=False, default_value=str(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     descriptor.FieldDescriptor(
       name='friendly_name', full_name='UpAuthRequest.friendly_name', index=1,
       number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=str("", "utf-8"),
+      has_default_value=False, default_value=str(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -1353,7 +1353,7 @@ _DELETEUPLOADREQUESTEDREQUEST = descriptor.Descriptor(
     descriptor.FieldDescriptor(
       name='uploader_id', full_name='DeleteUploadRequestedRequest.uploader_id', index=0,
       number=1, type=9, cpp_type=9, label=2,
-      has_default_value=False, default_value=str("", "utf-8"),
+      has_default_value=False, default_value=str(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -1430,7 +1430,7 @@ _CLIENTPOLICY = descriptor.Descriptor(
     descriptor.FieldDescriptor(
       name='analytics_url', full_name='ClientPolicy.analytics_url', index=7,
       number=8, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=str("", "utf-8"),
+      has_default_value=False, default_value=str(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -1507,14 +1507,14 @@ _OVERRIDECONFIGVALUE = descriptor.Descriptor(
     descriptor.FieldDescriptor(
       name='key', full_name='OverrideConfigValue.key', index=0,
       number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=str("", "utf-8"),
+      has_default_value=False, default_value=str(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     descriptor.FieldDescriptor(
       name='value', full_name='OverrideConfigValue.value', index=1,
       number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=str("", "utf-8"),
+      has_default_value=False, default_value=str(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
