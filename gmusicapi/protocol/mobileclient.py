@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 """Calls made by the mobile client."""
+from __future__ import print_function, absolute_import, division, unicode_literals
+from future import standard_library
+standard_library.install_aliases()
+from builtins import *
+from past.utils import old_div
 
 import base64
 import copy
@@ -673,7 +677,7 @@ class BatchMutatePlaylistEntries(McBatchMutateCall):
                             'lastModifiedTimestamp', 'playlistId',
                             'source', 'trackId'])
 
-        for key in mutation.keys():
+        for key in list(mutation.keys()):
             if key not in keys_to_keep:
                 del mutation[key]
 
@@ -893,7 +897,7 @@ class BatchMutateTracks(McBatchMutateCall):
             if key in track_dict:
                 del track_dict[key]
 
-        for key, default in {
+        for key, default in list({
             'playCount': 0,
             'rating': '0',
             'genre': '',
@@ -903,7 +907,7 @@ class BatchMutateTracks(McBatchMutateCall):
             'composer': '',
             'creationTimestamp': '-1',
             'totalDiscCount': 0,
-        }.items():
+        }.items()):
             track_dict.setdefault(key, default)
 
         # TODO unsure about this
@@ -1054,7 +1058,7 @@ class IncrementPlayCount(McCall):
         return json.dumps({'track_stats': [{
             'id': sid,
             'incremental_plays': plays,
-            'last_play_time_millis': str(play_timestamp / 1000),
+            'last_play_time_millis': str(old_div(play_timestamp, 1000)),
             'type': 2 if sid.startswith('T') else 1,
             'track_events': [event] * plays,
         }]})

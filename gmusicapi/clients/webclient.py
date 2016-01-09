@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
-
-from __future__ import print_function, division, absolute_import, unicode_literals
-from urlparse import urlparse, parse_qsl
+from __future__ import print_function, absolute_import, division, unicode_literals
+from future import standard_library
+standard_library.install_aliases()
+from builtins import *
+from urllib.parse import urlparse, parse_qsl
 
 import gmusicapi
 from gmusicapi.clients.shared import _Base
@@ -406,7 +408,7 @@ class Webclient(_Base):
                                 num_not_found, playlist_id)
 
         # Unzip the pairs.
-        sids, eids = zip(*e_s_id_pairs)
+        sids, eids = list(zip(*e_s_id_pairs))
 
         res = self._make_call(webclient.DeleteSongs, sids, playlist_id, eids)
 

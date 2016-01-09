@@ -1,6 +1,13 @@
 # -*- coding: utf-8 -*-
 
 """Definitions shared by multiple clients."""
+from __future__ import print_function, absolute_import, division, unicode_literals
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import range
+from builtins import *
+from builtins import object
 
 from collections import namedtuple
 import sys
@@ -14,6 +21,7 @@ from gmusicapi.exceptions import (
 from gmusicapi.utils import utils
 
 import requests
+from future.utils import with_metaclass
 
 log = utils.DynamicClientLogger(__name__)
 
@@ -81,7 +89,7 @@ class BuildRequestMeta(type):
         def req_closure(config=config):
             def build_request(cls, *args, **kwargs):
                 req_kwargs = {}
-                for key, val in config.items():
+                for key, val in list(config.items()):
                     if hasattr(val, '__call__'):
                         val = val(*args, **kwargs)
 
@@ -95,7 +103,7 @@ class BuildRequestMeta(type):
         return new_cls
 
 
-class Call(object):
+class Call(with_metaclass(BuildRequestMeta, object)):
     """
     Clients should use Call.perform().
 
@@ -147,8 +155,6 @@ class Call(object):
     Calls are organized semantically, so one endpoint might have multiple calls.
     """
 
-    __metaclass__ = BuildRequestMeta
-
     gets_logged = True
     fail_on_non_200 = True
 
@@ -198,7 +204,7 @@ class Call(object):
             log.debug("%s(args=%s, kwargs=%s)",
                       call_name,
                       [utils.truncate(a) for a in args],
-                      dict((k, utils.truncate(v)) for (k, v) in kwargs.items())
+                      dict((k, utils.truncate(v)) for (k, v) in list(kwargs.items()))
                       )
         else:
             log.debug("%s(<omitted>)", call_name)

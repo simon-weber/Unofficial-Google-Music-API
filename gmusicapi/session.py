@@ -3,7 +3,10 @@
 """
 Sessions handle the details of authentication and transporting requests.
 """
-from __future__ import print_function, division, absolute_import, unicode_literals
+from __future__ import print_function, absolute_import, division, unicode_literals
+from future import standard_library
+standard_library.install_aliases()
+from builtins import *
 from contextlib import closing
 
 import gpsoauth
@@ -125,7 +128,7 @@ class Webclient(_Base):
 
         # We can't use in without .keys(), since international users will see a
         # CookieConflictError.
-        if 'SID' not in browser.session.cookies.keys():
+        if 'SID' not in list(browser.session.cookies.keys()):
             # Invalid auth.
             return False
 

@@ -2,7 +2,10 @@
 # -*- coding: utf-8 -*-
 
 """A script that will rewrite audiotest* metadata to match their filenames."""
-from __future__ import print_function, division, absolute_import, unicode_literals
+from __future__ import print_function, absolute_import, division, unicode_literals
+from future import standard_library
+standard_library.install_aliases()
+from builtins import *
 
 from glob import glob
 import os
@@ -17,7 +20,7 @@ for fname in glob(u'audiotest*'):
         continue
 
     # clear existing tags
-    for key in audio.tags.keys():
+    for key in list(audio.tags.keys()):
         del audio.tags[key]
 
     # write

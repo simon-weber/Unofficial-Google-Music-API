@@ -19,7 +19,7 @@ dynamic_requires = []
 VERSIONFILE = 'gmusicapi/_version.py'
 
 version_line = open(VERSIONFILE).read()
-version_re = r"^__version__ = ['\"]([^'\"]*)['\"]"
+version_re = r"^__version__ = u['\"]([^'\"]*)['\"]"
 match = re.search(version_re, version_line, re.M)
 if match:
     version = match.group(1)

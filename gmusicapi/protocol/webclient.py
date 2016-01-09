@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 
 """Calls made by the web client."""
+from __future__ import print_function, absolute_import, division, unicode_literals
+from future import standard_library
+standard_library.install_aliases()
+from builtins import *
 
 import base64
 import copy
