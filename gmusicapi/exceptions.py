@@ -6,7 +6,7 @@ from future import standard_library
 from future.utils import python_2_unicode_compatible
 
 standard_library.install_aliases()
-from builtins import *
+from builtins import *  # noqa
 
 
 @python_2_unicode_compatible

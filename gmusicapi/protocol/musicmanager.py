@@ -6,7 +6,7 @@ from future import standard_library
 from future.utils import raise_from
 
 standard_library.install_aliases()
-from builtins import *
+from builtins import *  # noqa
 
 import base64
 from collections import namedtuple

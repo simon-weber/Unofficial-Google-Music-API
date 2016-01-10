@@ -6,7 +6,7 @@ Mock version of appdirs for use in cases without the real version
 from __future__ import print_function, division, absolute_import, unicode_literals
 from future import standard_library
 standard_library.install_aliases()
-from builtins import *
+from builtins import *  # noqa
 
 try:
     from appdirs import AppDirs

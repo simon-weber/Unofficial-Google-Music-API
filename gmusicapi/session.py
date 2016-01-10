@@ -6,7 +6,7 @@ Sessions handle the details of authentication and transporting requests.
 from __future__ import print_function, division, absolute_import, unicode_literals
 from future import standard_library
 standard_library.install_aliases()
-from builtins import *
+from builtins import *  # noqa
 from contextlib import closing
 
 import gpsoauth

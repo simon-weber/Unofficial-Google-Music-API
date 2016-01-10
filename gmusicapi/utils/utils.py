@@ -5,7 +5,7 @@ from __future__ import print_function, division, absolute_import, unicode_litera
 from future import standard_library
 standard_library.install_aliases()
 from past.builtins import basestring
-from builtins import *
+from builtins import *  # noqa
 from builtins import object
 
 import ast
