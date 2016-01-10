@@ -350,7 +350,6 @@ class Musicmanager(_Base):
         cd_header = response.headers['content-disposition']
 
         filename = urllib.parse.unquote(cd_header.split("filename*=UTF-8''")[-1])
-        filename = filename.decode('utf-8')
 
         return (filename, response.content)
 

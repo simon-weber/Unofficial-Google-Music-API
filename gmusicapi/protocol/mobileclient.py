@@ -477,8 +477,8 @@ class GetStreamUrl(McCall):
         if salt is None:
             salt = str(int(time.time() * 1000))
 
-        mac = hmac.new(cls._key, song_id, sha1)
-        mac.update(salt)
+        mac = hmac.new(cls._key, song_id.encode("utf-8"), sha1)
+        mac.update(salt.encode("utf-8"))
         sig = base64.urlsafe_b64encode(mac.digest())[:-1]
 
         return sig, salt

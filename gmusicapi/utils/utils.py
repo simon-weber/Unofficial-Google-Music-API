@@ -445,12 +445,8 @@ def locate_mp3_transcoder():
             transcoder_details[transcoder] = 'not installed'
             continue
 
-        proc = subprocess.Popen(
-            [cmd_path, '-codecs'],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE)
-
-        stdout, stderr = proc.communicate()
+        with open(os.devnull, "w") as null:
+            stdout = subprocess.check_output([cmd_path, '-codecs'], stderr=null).decode("ascii")
         mp3_encoding_support = ('libmp3lame' in stdout and 'disable-libmp3lame' not in stdout)
         if mp3_encoding_support:
             transcoder_details[transcoder] = "mp3 encoding support"

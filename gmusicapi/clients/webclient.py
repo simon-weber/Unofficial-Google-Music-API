@@ -240,7 +240,7 @@ class Webclient(_Base):
                        for key, val in parse_qsl(urlparse(url)[4])
                        if key == 'range']
 
-        stream_pieces = []
+        stream_pieces = bytearray()
         prev_end = 0
         headers = None
 
@@ -262,11 +262,11 @@ class Webclient(_Base):
                 # trim to the proper range
                 audio = audio[prev_end - start:]
 
-            stream_pieces.append(audio)
+            stream_pieces.extend(audio)
 
             prev_end = end + 1
 
-        return b''.join(stream_pieces)
+        return bytes(stream_pieces)
 
     @utils.accept_singleton(str)
     @utils.enforce_ids_param

@@ -196,7 +196,7 @@ def authtypes_factory_args():
 def mc_url_signing():
     sig, _ = mobileclient.GetStreamUrl.get_signature("Tdr6kq3xznv5kdsphyojox6dtoq",
                                                      "1373247112519")
-    assert_equal(sig, "gua1gInBdaVo7_dSwF9y0kodua0")
+    assert_equal(sig, b"gua1gInBdaVo7_dSwF9y0kodua0")
 
 
 #
