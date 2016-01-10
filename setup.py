@@ -5,12 +5,17 @@ import re
 from setuptools import setup, find_packages
 import sys
 
-# Only 2.7 is supported.
-if not ((2, 7, 0) <= sys.version_info[:3] < (2, 8)):
-    sys.stderr.write('gmusicapi does not officially support this Python version.\n')
-    # try to continue anyway
-
 dynamic_requires = []
+# Python 2.7 is supported. Python 3 support is experimental
+if sys.version_info[0] > 2:
+    sys.stderr.write("gmusicapi Python 3 support is experimental.\n")
+    dynamic_requires.append("protobuf >= 3.0.0b2")
+else:
+    if sys.version_info[:3] <= (2, 7, 0):
+        sys.stderr.write('gmusicapi does not officially support this Python version.\n')
+    dynamic_requires.append('protobuf >= 2.4.1')  # 2.3.0 uses ez_setup?
+
+# try to continue anyway
 
 # This hack is from http://stackoverflow.com/a/7071358/1231454;
 # the version is kept in a seperate file and gets parsed - this
@@ -42,7 +47,6 @@ setup(
         'validictory >= 0.8.0, != 0.9.2',         # error messages
         'decorator >= 3.3.1',                     # > 3.0 likely work, but not on pypi
         'mutagen >= 1.18',                        # EasyID3 module renaming
-        'protobuf >= 2.4.1',                      # 2.3.0 uses ez_setup?
         'requests >= 1.1.0, != 1.2.0, != 2.2.1, < 2.8.0',  # session.close, memory view TypeError
         'python-dateutil >= 1.3, != 2.0',         # 2.0 is python3-only
         'proboscis >= 1.2.5.1',                   # runs_after
@@ -63,6 +67,9 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Multimedia :: Sound/Audio',
         'Topic :: Software Development :: Libraries :: Python Modules',
