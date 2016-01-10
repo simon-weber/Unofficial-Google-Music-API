@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """Definitions shared by multiple clients."""
-from __future__ import print_function, absolute_import, division, unicode_literals
+from __future__ import print_function, division, absolute_import, unicode_literals
 from future import standard_library
 standard_library.install_aliases()
 from builtins import *
@@ -85,7 +85,7 @@ class BuildRequestMeta(type):
         def req_closure(config=config):
             def build_request(cls, *args, **kwargs):
                 req_kwargs = {}
-                for key, val in list(config.items()):
+                for key, val in config.items():
                     if hasattr(val, '__call__'):
                         val = val(*args, **kwargs)
 
@@ -200,7 +200,7 @@ class Call(with_metaclass(BuildRequestMeta, object)):
             log.debug("%s(args=%s, kwargs=%s)",
                       call_name,
                       [utils.truncate(a) for a in args],
-                      dict((k, utils.truncate(v)) for (k, v) in list(kwargs.items()))
+                      dict((k, utils.truncate(v)) for (k, v) in kwargs.items())
                       )
         else:
             log.debug("%s(<omitted>)", call_name)

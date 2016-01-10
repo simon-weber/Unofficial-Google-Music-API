@@ -1,11 +1,13 @@
-from __future__ import print_function, absolute_import, division, unicode_literals
+from __future__ import print_function, division, absolute_import, unicode_literals
 from future import standard_library
 standard_library.install_aliases()
 from builtins import *
 import os
 from socket import gethostname
 import time
-import urllib.request, urllib.parse, urllib.error
+import urllib.request
+import urllib.parse
+import urllib.error
 from uuid import getnode as getmac
 import webbrowser
 
@@ -451,7 +453,7 @@ class Musicmanager(_Base):
 
         # Upload metadata; the server tells us what to do next.
         res = self._make_call(musicmanager.UploadMetadata,
-                              [t for (path, t) in list(local_info.values())],
+                              [t for (path, t) in local_info.values()],
                               self.uploader_id)
 
         # TODO checking for proper contents should be handled in verification
@@ -518,7 +520,7 @@ class Musicmanager(_Base):
             # TODO reordering requests could avoid wasting time waiting for reup sync
             self._make_call(musicmanager.UpdateUploadState, 'start', self.uploader_id)
 
-            for server_id, (path, track, do_not_rematch) in list(to_upload.items()):
+            for server_id, (path, track, do_not_rematch) in to_upload.items():
                 # It can take a few tries to get an session.
                 should_retry = True
                 attempts = 0

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """Calls made by the web client."""
-from __future__ import print_function, absolute_import, division, unicode_literals
+from __future__ import print_function, division, absolute_import, unicode_literals
 from future import standard_library
 from future.utils import raise_from
 
@@ -296,7 +296,7 @@ class ChangeSongMetadata(WcCall):
         """
         :param songs: a list of dicts ``{'id': '...', 'albumArtUrl': '...'}``
         """
-        if any([s for s in songs if set(s.keys()) != set(['id', 'albumArtUrl'])]):
+        if any([s for s in songs if set(s.keys()) != {'id', 'albumArtUrl'}]):
             raise ValueError("ChangeSongMetadata only supports the 'id' and 'albumArtUrl' keys."
                              " All other keys must be removed.")
 

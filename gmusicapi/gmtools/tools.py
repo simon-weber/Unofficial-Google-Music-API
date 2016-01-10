@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function, absolute_import, division, unicode_literals
 """Tools for manipulating client-received Google Music data."""
+from __future__ import print_function, division, absolute_import, unicode_literals
 from future import standard_library
 standard_library.install_aliases()
 from builtins import *
@@ -251,7 +251,7 @@ class SongMatcher(object):
         while not (0 <= choice <= len(results)):
             try:
                 choice = int(input("Choice: "))
-            except:
+            except ValueError:
                 pass
 
         return None if choice == 0 else [results[choice - 1]]

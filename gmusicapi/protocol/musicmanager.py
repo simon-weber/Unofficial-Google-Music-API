@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 
 """Calls made by the Music Manager (related to uploading)."""
-from __future__ import print_function, absolute_import, division, unicode_literals
+from __future__ import print_function, division, absolute_import, unicode_literals
 from future import standard_library
 from future.utils import raise_from
 
 standard_library.install_aliases()
 from builtins import *
-from past.utils import old_div
 
 import base64
 from collections import namedtuple
@@ -208,18 +207,18 @@ class UploadMetadata(MmCall):
         elif isinstance(audio, mutagen.asf.ASF):
             # WMA entries store more info than just the value.
             # Monkeypatch in a dict {key: value} to keep interface the same for all filetypes.
-            asf_dict = dict((k, [ve.value for ve in v]) for (k, v) in list(audio.tags.as_dict().items()))
+            asf_dict = dict((k, [ve.value for ve in v]) for (k, v) in audio.tags.as_dict().items())
             audio.tags = asf_dict
 
         track.duration_millis = int(audio.info.length * 1000)
 
         try:
-            bitrate = int(old_div(audio.info.bitrate, 1000))
+            bitrate = audio.info.bitrate // 1000
         except AttributeError:
             # mutagen doesn't provide bitrate for some lossless formats (eg FLAC), so
             # provide an estimation instead. This shouldn't matter too much;
             # the bitrate will always be > 320, which is the highest scan and match quality.
-            bitrate = old_div((track.estimated_size * 8), track.duration_millis)
+            bitrate = (track.estimated_size * 8) // track.duration_millis
 
         track.original_bit_rate = bitrate
 
@@ -278,11 +277,11 @@ class UploadMetadata(MmCall):
             list(cls.field_map.items())
         )
 
-        for mutagen_f, track_f in list(fields.items()):
+        for mutagen_f, track_f in fields.items():
             if mutagen_f in audio:
                 track_set(track_f, audio[mutagen_f][0])
 
-        for mutagen_f, (track_f, track_total_f) in list(cls.count_fields.items()):
+        for mutagen_f, (track_f, track_total_f) in cls.count_fields.items():
             if mutagen_f in audio:
                 numstrs = str(audio[mutagen_f][0]).split("/")
                 track_set(track_f, numstrs[0])
@@ -503,8 +502,8 @@ class ProvideSample(MmCall):
             # transcoded into 128kbs mp3. The server dictates where the cut should be made.
             sample_msg.sample = utils.transcode_to_mp3(
                 filepath, quality='128k',
-                slice_start=old_div(sample_spec.start_millis, 1000),
-                slice_duration=old_div(sample_spec.duration_millis, 1000)
+                slice_start=sample_spec.start_millis // 1000,
+                slice_duration=sample_spec.duration_millis // 1000
             )
         else:
             sample_msg.sample = mock_sample

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import print_function, absolute_import, division, unicode_literals
+from __future__ import print_function, division, absolute_import, unicode_literals
 from future import standard_library
 from future.utils import PY3, bind_method
 
