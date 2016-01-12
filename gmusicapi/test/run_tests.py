@@ -100,6 +100,7 @@ def retrieve_auth():
 
     return (wc_kwargs, mc_kwargs, mm_kwargs)
 
+
 def freeze_method_kwargs(klass, method_name, **kwargs):
     method = getattr(klass, method_name)
     partialfunc = functools.partialmethod if PY3 else functools.partial

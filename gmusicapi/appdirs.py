@@ -16,8 +16,8 @@ except ImportError:
 
     class FakeAppDirs(object):
         to_spoof = set(base + '_dir' for base in
-                        ('user_data', 'site_data', 'user_config',
-                         'site_config', 'user_cache', 'user_log'))
+                       ('user_data', 'site_data', 'user_config', 'site_config', 'user_cache',
+                        'user_log'))
 
         def __getattr__(self, name):
             if name in self.to_spoof:

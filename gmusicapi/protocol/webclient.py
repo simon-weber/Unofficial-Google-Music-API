@@ -482,7 +482,7 @@ class GetSettings(WcCall):
                             'expirationMillis': {'type': 'integer', 'required': False},
                             'isCanceled': {'type': 'boolean'},
                             'isSubscription': {'type': 'boolean'},
-                            'isTrial':  {'type': 'boolean'},
+                            'isTrial': {'type': 'boolean'},
                         }},
                     'lab': {
                         'type': 'array',
