@@ -11,7 +11,7 @@ if sys.version_info[0] > 2:
     sys.stderr.write("gmusicapi Python 3 support is experimental.\n")
     dynamic_requires.append("protobuf >= 3.0.0b2")
 else:
-    if sys.version_info[:3] <= (2, 7, 0):
+    if sys.version_info[:3] < (2, 7, 9):
         sys.stderr.write('gmusicapi does not officially support this Python version.\n')
     dynamic_requires.append('protobuf >= 2.4.1')  # 2.3.0 uses ez_setup?
 
@@ -53,7 +53,7 @@ setup(
         'oauth2client >= 1.1',                    # TokenRevokeError
         'mock >= 0.7.0',                          # MagicMock
         'appdirs >= 1.1.0',                       # user_log_dir
-        'gpsoauth == 0.0.5',                      # mac -> android_id, validation, pycrypto version
+        'gpsoauth == 0.1.0',                      # mac -> android_id, validation, pycrypto version
         'MechanicalSoup',
         'pyopenssl',
         'ndg-httpsclient',
