@@ -11,6 +11,7 @@ from builtins import *  # noqa
 import base64
 from collections import namedtuple
 import hashlib
+import itertools
 import os
 
 import dateutil.parser
@@ -273,9 +274,9 @@ class UploadMetadata(MmCall):
         # Mass-populate the rest of the simple fields.
         # Merge shared and unshared fields into {mutagen: Track}.
         fields = dict(
-            list(dict((shared, shared) for shared in cls.shared_fields).items()) +
-            list(cls.field_map.items())
-        )
+            itertools.chain(
+                ((shared, shared) for shared in cls.shared_fields),
+                cls.field_map.items()))
 
         for mutagen_f, track_f in fields.items():
             if mutagen_f in audio:

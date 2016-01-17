@@ -4,15 +4,17 @@
 import re
 from setuptools import setup, find_packages
 import sys
+import warnings
 
 dynamic_requires = []
 # Python 2.7 is supported. Python 3 support is experimental
 if sys.version_info[0] > 2:
-    sys.stderr.write("gmusicapi Python 3 support is experimental.\n")
+    warnings.warn("gmusicapi Python 3 support is experimental", RuntimeWarning)
     dynamic_requires.append("protobuf >= 3.0.0b2")
 else:
     if sys.version_info[:3] < (2, 7, 9):
-        sys.stderr.write('gmusicapi does not officially support this Python version.\n')
+        warnings.warn("gmusicapi does not officially support versions below "
+                      "Python 2.7.9", RuntimeWarning)
     dynamic_requires.append('protobuf >= 2.4.1')  # 2.3.0 uses ez_setup?
 
 # try to continue anyway

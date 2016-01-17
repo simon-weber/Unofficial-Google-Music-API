@@ -27,6 +27,7 @@ from proboscis.asserts import (
 from proboscis import test, before_class, after_class, SkipTest
 import requests
 from requests.exceptions import SSLError
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 from gmusicapi import Webclient, Musicmanager, Mobileclient
 # from gmusicapi.protocol import mobileclient
@@ -105,8 +106,10 @@ class SslVerificationTests(object):
 
     @test
     def disable_client_verify(self):
-        for client_cls in (Webclient, Mobileclient, Musicmanager):
-            self.request_invalid_site(client_cls(verify_ssl=False))  # should not raise SSLError
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=InsecureRequestWarning)
+            for client_cls in (Webclient, Mobileclient, Musicmanager):
+                self.request_invalid_site(client_cls(verify_ssl=False))  # should not raise SSLError
 
 
 @test(groups=['server'])
@@ -817,7 +820,7 @@ class ClientTests(object):
     @plentry_test
     def mc_reorder_ple_forwards(self):
         for from_pos, to_pos in [pair for pair in
-                                 itertools.product(list(range(len(self.plentry_ids))), repeat=2)
+                                 itertools.product(range(len(self.plentry_ids)), repeat=2)
                                  if pair[0] < pair[1]]:
             self._mc_test_ple_reodering(from_pos, to_pos)
 
@@ -825,7 +828,7 @@ class ClientTests(object):
     def mc_reorder_ple_backwards(self):
         playlist_len = len(self.plentry_ids)
         for from_pos, to_pos in [pair for pair in
-                                 itertools.product(list(range(playlist_len)), repeat=2)
+                                 itertools.product(range(playlist_len), repeat=2)
                                  if pair[0] > pair[1]]:
             self._mc_test_ple_reodering(from_pos, to_pos)
 

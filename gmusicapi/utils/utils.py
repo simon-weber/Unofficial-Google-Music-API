@@ -14,6 +14,7 @@ from distutils import spawn
 import errno
 import functools
 import inspect
+import itertools
 import logging
 import os
 import re
@@ -548,7 +549,10 @@ def truncate(x, max_els=100, recurse_levels=0):
                     trunc['...'] = '...'
                     return trunc
                 else:
-                    return dict(list(x.items())[:max_els] + [('...', '...')])
+                    return dict(
+                        itertools.chain(
+                            itertools.islice(x.items(), 0, max_els),
+                            [('...', '...')]))
 
             if isinstance(x, list):
                 trunc = x[:max_els] + ['...']
