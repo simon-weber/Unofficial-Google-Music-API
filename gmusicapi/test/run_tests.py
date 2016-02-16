@@ -38,6 +38,8 @@ mm_envargs = (
     EnvArg('GM_N', 'uploader_name', 'MM uploader name. Default to MM.login default.'),
 )
 
+# value for GM_AA_D_ID to use a fake android_id (your MAC)
+ANDROID_ID_AS_MAC = 'mac'
 
 def prompt_for_wc_auth():
     """Return a valid (user, pass) tuple by continually
@@ -96,9 +98,9 @@ def retrieve_auth():
     try:
         android_id = os.environ['GM_AA_D_ID']
     except KeyError:
-        android_id = input("Device ID ('mac' for FROM_MAC_ADDRESS): ")
+        android_id = input("Device ID ('%s' for FROM_MAC_ADDRESS): " % ANDROID_ID_AS_MAC)
 
-    if android_id == "mac":
+    if android_id == ANDROID_ID_AS_MAC:
         android_id = Mobileclient.FROM_MAC_ADDRESS
 
     if not android_id:
@@ -132,7 +134,7 @@ def main():
         # hack: assume we're just running the proboscis local group
         freeze_login_details(*retrieve_auth())
 
-    if 'GM_AA_D_ID' in os.environ:
+    if 'GM_AA_D_ID' in os.environ and os.environ['GM_AA_D_ID'] != ANROID_ID_AS_MAC:
         freeze_method_kwargs(
             Mobileclient,
             'get_stream_url',
