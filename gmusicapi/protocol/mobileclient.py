@@ -847,6 +847,54 @@ class ListStationTracks(McCall):
         return filtered
 
 
+class ListMixTracks(McCall):
+    _res_schema = {
+        'type': 'object',
+        'additionalProperties': False,
+        'properties': {
+            'kind': {'type': 'string'},
+            'data': {'type': 'object',
+                     'stations': {'type': 'array', 'items': sj_station},
+                     'required': False,
+                    },
+        },
+    }
+
+    static_headers = {'Content-Type': 'application/json'}
+    static_params = {'alt': 'json'}
+    static_method = 'POST'
+    static_url = sj_url + 'radio/stationfeed'
+
+    @staticmethod
+    def dynamic_data(seed, num_entries, recently_played):
+        """
+        :param seed
+        :param num_entries: maximum number of tracks to return
+        :param recently_played: a list of...song ids? never seen an example
+        """
+        #TODO
+        # clearly, this supports more than one at a time,
+        # but then that might introduce paging?
+        # I'll leave it for someone else
+
+        return json.dumps({'contentFilter': 1,
+                           'stations': [
+                               {
+                                   'numEntries': num_entries,
+                                   'seed': seed,
+                                   'recentlyPlayed': recently_played
+                               }
+                           ]})
+
+    @staticmethod
+    def filter_response(msg):
+        filtered = copy.deepcopy(msg)
+        if 'stations' in filtered['data']:
+            filtered['data']['stations'] = \
+                    ["<%s stations>" % len(filtered['data']['stations'])]
+        return filtered
+
+
 class BatchMutateStations(McBatchMutateCall):
     static_method = 'POST'
     static_url = sj_url + 'radio/editstation'
