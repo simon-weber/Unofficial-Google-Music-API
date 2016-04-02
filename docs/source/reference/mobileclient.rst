@@ -48,6 +48,7 @@ Store track ids can be used in most places that normal song ids can
 Note that sometimes they are stored under the ``'nid'`` key, not the ``'id'`` key.
 
 .. automethod:: Mobileclient.get_all_songs
+.. automethod:: Mobileclient.get_thumbsup_songs
 .. automethod:: Mobileclient.get_stream_url
 .. automethod:: Mobileclient.change_song_metadata
 .. automethod:: Mobileclient.delete_songs

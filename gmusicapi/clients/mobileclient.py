@@ -160,6 +160,24 @@ class Mobileclient(_Base):
 
         return tracks
 
+    def get_thumbsup_songs(self, incremental=False, include_deleted=False):
+        """Returns a list of dictionaries that each represent a thumbs upped song.
+
+        :param incremental: if True, return a generator that yields lists
+          of at most 1000 tracks
+          as they are retrieved from the server. This can be useful for
+          presenting a loading bar to a user.
+
+        :param include_deleted: if True, include tracks that have been deleted
+          in the past.
+
+        See :func:`get_all_songs` for the format of a track dictionary.
+        """
+
+        tracks = self._get_all_items(mobileclient.ListEphemeralThumbsUpTracks, incremental, include_deleted)
+
+        return tracks
+
     @utils.accept_singleton(dict)
     @utils.empty_arg_shortcircuit
     def change_song_metadata(self, songs):
