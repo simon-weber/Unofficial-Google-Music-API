@@ -116,10 +116,12 @@ class Mobileclient(_Base):
                               " Provide an android_id (and be"
                               " sure to provide the same one on future runs).")
 
-            android_id = utils.create_mac_string(mac_int)
-            android_id = android_id.replace(':', '')
+            device_id = utils.create_mac_string(mac_int)
+            device_id = android_id.replace(':', '')
+        else:
+            device_id = android_id
 
-        if not self.session.login(email, password, android_id):
+        if not self.session.login(email, password, device_id):
             self.logger.info("failed to authenticate")
             return False
 
