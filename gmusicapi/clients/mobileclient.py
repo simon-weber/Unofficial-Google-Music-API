@@ -117,7 +117,7 @@ class Mobileclient(_Base):
                               " sure to provide the same one on future runs).")
 
             device_id = utils.create_mac_string(mac_int)
-            device_id = android_id.replace(':', '')
+            device_id = device_id.replace(':', '')
         else:
             device_id = android_id
 
