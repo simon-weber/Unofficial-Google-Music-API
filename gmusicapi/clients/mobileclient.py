@@ -140,7 +140,7 @@ class Mobileclient(_Base):
             self.logger.info("failed to authenticate")
             return False
 
-        self.android_id = self._validate_device_id(android_id, is_mac=is_mac)
+        self.android_id = self._validate_device_id(device_id, is_mac=is_mac)
         self.logger.info("authenticated")
 
         self.locale = locale
