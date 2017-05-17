@@ -340,7 +340,7 @@ class Mobileclient(_Base):
         return [d['id'] for d in res['mutate_response']]
 
     @utils.enforce_id_param
-    def get_stream_url(self, song_id, device_id=None, quality='hi'):
+    def get_stream_url(self, song_id, device_id=None, quality='hi', session_token=None, wentry_id=None):
         """Returns a url that will point to an mp3 file.
 
         :param song_id: a single song id
@@ -380,10 +380,13 @@ class Mobileclient(_Base):
         to download files with metadata.
         """
 
-        if song_id.startswith('T') and not self.is_subscribed:
-            raise NotSubscribed("Store tracks require a subscription to stream.")
+        #if song_id.startswith('T') and not self.is_subscribed:
+        #    raise NotSubscribed("Store tracks require a subscription to stream.")
 
         device_id = self._ensure_device_id(device_id)
+
+        if session_token:
+            return self._make_call(mobileclient.GetStreamUrlFree, song_id, device_id, quality, session_token, wentry_id)
 
         return self._make_call(mobileclient.GetStreamUrl, song_id, device_id, quality)
 
@@ -1537,10 +1540,11 @@ class Mobileclient(_Base):
             raise ValueError('exactly one {track,artist,album,genre}_id must be provided')
 
         mutate_call = mobileclient.BatchMutateStations
-        add_mutation = mutate_call.build_add(name, seed, include_tracks=False, num_tracks=0)
+        add_mutation = mutate_call.build_add(name, seed, include_tracks=True, num_tracks=100)
         res = self._make_call(mutate_call, [add_mutation])
 
-        return res['mutate_response'][0]['id']
+        #return res['mutate_response'][0]['id']
+        return res['mutate_response'][0]['station']
 
     @utils.accept_singleton(basestring)
     @utils.enforce_ids_param

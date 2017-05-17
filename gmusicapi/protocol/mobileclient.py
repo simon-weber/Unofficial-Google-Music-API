@@ -896,6 +896,45 @@ class GetStreamUrl(McStreamCall):
     static_method = 'GET'
     static_url = sj_stream_url + 'mplay'
 
+class GetStreamUrlFree(McStreamCall):
+    static_method = 'GET'
+    static_url = sj_stream_url + 'wplay'
+
+    @staticmethod
+    def dynamic_headers(item_id, device_id, quality, session_token, wentry_id):
+        return {'X-Device-ID': device_id}
+
+    @classmethod
+    def dynamic_params(cls, song_id, device_id, quality, session_token, wentry_id):
+        sig, salt = cls.get_signature(song_id)
+
+        params = {}
+        if song_id[0] == 'T':
+            # all access
+            params['mjck'] = song_id
+        else:
+            params['songid'] = song_id
+
+        params['sesstok']  = session_token.encode('utf-8')
+        params['wentryid'] = wentry_id.encode('utf-8')
+        params['tier']     = 'fr'
+
+        params.update({
+                  'audio_formats': 'mp3',
+                  'opt': quality,
+                  'net': 'mob',
+                  'pt': 'a',
+                  'slt': salt,
+                  'sig': sig,
+                  })
+
+        return params
+
+    @staticmethod
+    def parse_response(response):
+        res = json.loads(response.text)
+        return res ['location']
+
 
 class ListPlaylists(McListCall):
     item_schema = sj_playlist
