@@ -905,6 +905,14 @@ class ListPlaylists(McListCall):
     static_url = sj_url + 'playlistfeed'
 
 
+class ListEphemeralThumbsUpTracks(McListCall):
+    item_schema = sj_plentry
+    filter_text = 'plentries'
+
+    static_method = 'POST'
+    static_url = sj_url + 'ephemeral/top'
+
+
 class ListPlaylistEntries(McListCall):
     item_schema = sj_plentry
     filter_text = 'plentries'
