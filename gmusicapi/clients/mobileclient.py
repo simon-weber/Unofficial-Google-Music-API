@@ -45,7 +45,8 @@ class Mobileclient(_Base):
 
     def _validate_device_id(self, device_id, is_mac=False):
         """Ensure that a given device_id belongs to the user supplying it."""
-        if is_mac:  # Always allow logins with MAC address.
+        return device_id
+        """if is_mac:  # Always allow logins with MAC address.
             return device_id
         devices = [
             d['id'][2:] if d['id'].startswith('0x') else d['id'].replace(':', '')
@@ -55,7 +56,7 @@ class Mobileclient(_Base):
             return device_id
         else:
             self.logout()
-            raise InvalidDeviceId('Invalid device_id %s.' % device_id, devices)
+            raise InvalidDeviceId('Invalid device_id %s.' % device_id, devices)"""
 
     @property
     def locale(self):
