@@ -191,8 +191,6 @@ sj_plentry = {
     'properties': {
         'kind': {'type': 'string'},
         'id': {'type': 'string'},
-        'title': {'type': 'string'},
-        'artist': {'type': 'string'},
         'clientId': {'type': 'string'},
         'playlistId': {'type': 'string'},
         'absolutePosition': {'type': 'string'},
