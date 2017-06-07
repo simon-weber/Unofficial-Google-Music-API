@@ -341,7 +341,7 @@ class Mobileclient(_Base):
         return [d['id'] for d in res['mutate_response']]
 
     @utils.enforce_id_param
-    def get_stream_url(self, song_id, device_id=None, quality='hi'):
+    def get_stream_url(self, song_id, device_id, quality='hi'):
         """Returns a url that will point to an mp3 file.
 
         :param song_id: a single song id
@@ -384,7 +384,7 @@ class Mobileclient(_Base):
         if song_id.startswith('T') and not self.is_subscribed:
             raise NotSubscribed("Store tracks require a subscription to stream.")
 
-        device_id = self._ensure_device_id(device_id)
+        #device_id = self._ensure_device_id(device_id)
 
         return self._make_call(mobileclient.GetStreamUrl, song_id, device_id, quality)
 
