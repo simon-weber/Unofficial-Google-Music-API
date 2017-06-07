@@ -43,7 +43,8 @@ class Mobileclient(_Base):
 
         return device_id
 
-    def _validate_device_id(self, device_id, is_mac=False):
+    #modified
+    def _validate_device_id(self, device_id, is_mac=False): 
         """Ensure that a given device_id belongs to the user supplying it."""
         return device_id
         """if is_mac:  # Always allow logins with MAC address.
@@ -340,6 +341,7 @@ class Mobileclient(_Base):
 
         return [d['id'] for d in res['mutate_response']]
 
+    #modified
     @utils.enforce_id_param
     def get_stream_url(self, song_id, device_id, quality='hi'):
         """Returns a url that will point to an mp3 file.
