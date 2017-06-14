@@ -328,6 +328,9 @@ sj_station_seed = {
     }
 }
 
+sj_station_track = sj_track.copy()
+sj_station_track['properties']['wentryid'] = {'type': 'string', 'required': False}
+
 sj_station = {
     'type': 'object',
     'additionalProperties': False,
@@ -343,6 +346,8 @@ sj_station = {
                             'required': False},  # for public
         'clientId': {'type': 'string',
                      'required': False},  # for public
+        'sessionToken':{'type': 'string',
+                        'required': False},  # for free radios
         'skipEventHistory': {'type': 'array'},  # TODO: What's in this array?
         'seed': sj_station_seed,
         'stationSeeds': {'type': 'array',
@@ -350,7 +355,7 @@ sj_station = {
         'id': {'type': 'string',
                'required': False},  # for public
         'description': {'type': 'string', 'required': False},
-        'tracks': {'type': 'array', 'required': False, 'items': sj_track},
+        'tracks': {'type': 'array', 'required': False, 'items': sj_station_track},
         'imageUrls': {'type': 'array',
                       'required': False,
                       'items': sj_image
@@ -896,16 +901,16 @@ class GetStreamUrl(McStreamCall):
     static_method = 'GET'
     static_url = sj_stream_url + 'mplay'
 
-class GetStreamUrlFree(McStreamCall):
+class GetStationTrackStreamUrl(McStreamCall):
     static_method = 'GET'
     static_url = sj_stream_url + 'wplay'
 
     @staticmethod
-    def dynamic_headers(item_id, device_id, quality, session_token, wentry_id):
-        return {'X-Device-ID': device_id}
+    def dynamic_headers(item_id, session_token, wentry_id, quality):
+        return {'X-Device-ID': ''}
 
     @classmethod
-    def dynamic_params(cls, song_id, device_id, quality, session_token, wentry_id):
+    def dynamic_params(cls, song_id, session_token, wentry_id, quality):
         sig, salt = cls.get_signature(song_id)
 
         params = {}
