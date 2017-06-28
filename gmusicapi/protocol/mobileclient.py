@@ -906,11 +906,11 @@ class GetStationTrackStreamUrl(McStreamCall):
     static_url = sj_stream_url + 'wplay'
 
     @staticmethod
-    def dynamic_headers(item_id, session_token, wentry_id, quality):
+    def dynamic_headers(item_id, wentry_id, session_token, quality):
         return {'X-Device-ID': ''}
 
     @classmethod
-    def dynamic_params(cls, song_id, session_token, wentry_id, quality):
+    def dynamic_params(cls, song_id, wentry_id, session_token, quality):
         sig, salt = cls.get_signature(song_id)
 
         params = {}

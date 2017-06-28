@@ -387,18 +387,19 @@ class Mobileclient(_Base):
 
         return self._make_call(mobileclient.GetStreamUrl, song_id, device_id, quality)
 
-    def get_station_track_stream_url(self, song_id, session_token, wentry_id, quality='hi'):
+    def get_station_track_stream_url(self, song_id, wentry_id, session_token, quality='hi'):
         """Returns a url that will point to an mp3 file.
+        Used only for free stations tracks, subscribers station tracks should call get_stream_url
 
         :param song_id: a single song id
-        :param session_token: a free radio station session token
         :param wentry_id: a free radio station track entry id
+        :param session_token: a free radio station session token
         :param quality: (optional) stream bits per second quality
           One of three possible values, hi: 320kbps, med: 160kbps, low: 128kbps.
           The default is hi
 
         """
-        return self._make_call(mobileclient.GetStationTrackStreamUrl, song_id, session_token, wentry_id, quality)
+        return self._make_call(mobileclient.GetStationTrackStreamUrl, song_id, wentry_id, session_token, quality)
 
     def get_all_playlists(self, incremental=False, include_deleted=None):
         """Returns a list of dictionaries that each represent a playlist.
@@ -2080,7 +2081,7 @@ class Mobileclient(_Base):
 
     @utils.enforce_id_param
     def get_station_info(self, station_id, num_tracks=25):
-        """Retrieves information about a store track.
+        """Retrieves information about a station.
 
         :param station_id: a station id
         :param include_tracks: when True, create the ``'tracks'`` substructure
