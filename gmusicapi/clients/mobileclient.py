@@ -392,11 +392,16 @@ class Mobileclient(_Base):
 
     def get_station_track_stream_url(self, song_id, wentry_id, session_token, quality='hi'):
         """Returns a url that will point to an mp3 file.
-        Used only for free stations tracks, subscribers station tracks should call get_stream_url
+        
+        This is only for use by free accounts, and requires a call to
+        :func:`get_station_info` first to provide `wentry_id` and `session_token`.
+        Subscribers should instead use :func:`get_stream_url`.
 
         :param song_id: a single song id
-        :param wentry_id: a free radio station track entry id
-        :param session_token: a free radio station session token
+        :param wentry_id: a free radio station track entry id (`wentryid` from
+          :func:`get_station_info`)
+        :param session_token: a free radio station session token (`sessionToken` from
+          :func:`get_station_info`)
         :param quality: (optional) stream bits per second quality
           One of three possible values, hi: 320kbps, med: 160kbps, low: 128kbps.
           The default is hi
