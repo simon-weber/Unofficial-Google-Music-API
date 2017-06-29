@@ -347,7 +347,7 @@ sj_station = {
         'clientId': {'type': 'string',
                      'required': False},  # for public
         'sessionToken': {'type': 'string',
-                        'required': False},  # for free radios
+                         'required': False},  # for free radios
         'skipEventHistory': {'type': 'array'},  # TODO: What's in this array?
         'seed': sj_station_seed,
         'stationSeeds': {'type': 'array',
@@ -901,7 +901,7 @@ class GetStreamUrl(McStreamCall):
     static_method = 'GET'
     static_url = sj_stream_url + 'mplay'
 
-    
+
 class GetStationTrackStreamUrl(McStreamCall):
     static_method = 'GET'
     static_url = sj_stream_url + 'wplay'
