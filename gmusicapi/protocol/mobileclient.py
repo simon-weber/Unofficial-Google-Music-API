@@ -346,7 +346,7 @@ sj_station = {
                             'required': False},  # for public
         'clientId': {'type': 'string',
                      'required': False},  # for public
-        'sessionToken':{'type': 'string',
+        'sessionToken': {'type': 'string',
                         'required': False},  # for free radios
         'skipEventHistory': {'type': 'array'},  # TODO: What's in this array?
         'seed': sj_station_seed,
@@ -901,6 +901,7 @@ class GetStreamUrl(McStreamCall):
     static_method = 'GET'
     static_url = sj_stream_url + 'mplay'
 
+    
 class GetStationTrackStreamUrl(McStreamCall):
     static_method = 'GET'
     static_url = sj_stream_url + 'wplay'
@@ -920,25 +921,25 @@ class GetStationTrackStreamUrl(McStreamCall):
         else:
             params['songid'] = song_id
 
-        params['sesstok']  = session_token.encode('utf-8')
+        params['sesstok'] = session_token.encode('utf-8')
         params['wentryid'] = wentry_id.encode('utf-8')
-        params['tier']     = 'fr'
+        params['tier'] = 'fr'
 
-        params.update({
-                  'audio_formats': 'mp3',
-                  'opt': quality,
-                  'net': 'mob',
-                  'pt': 'a',
-                  'slt': salt,
-                  'sig': sig,
-                  })
+        params.update(
+            {'audio_formats': 'mp3',
+             'opt': quality,
+             'net': 'mob',
+             'pt': 'a',
+             'slt': salt,
+             'sig': sig,
+             })
 
         return params
 
     @staticmethod
     def parse_response(response):
         res = json.loads(response.text)
-        return res ['location']
+        return res['location']
 
 
 class ListPlaylists(McListCall):
