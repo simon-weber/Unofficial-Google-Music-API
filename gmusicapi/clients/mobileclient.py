@@ -392,7 +392,7 @@ class Mobileclient(_Base):
 
     def get_station_track_stream_url(self, song_id, wentry_id, session_token, quality='hi'):
         """Returns a url that will point to an mp3 file.
-        
+
         This is only for use by free accounts, and requires a call to
         :func:`get_station_info` first to provide `wentry_id` and `session_token`.
         Subscribers should instead use :func:`get_stream_url`.
@@ -407,7 +407,8 @@ class Mobileclient(_Base):
           The default is hi
 
         """
-        return self._make_call(mobileclient.GetStationTrackStreamUrl, song_id, wentry_id, session_token, quality)
+        return self._make_call(mobileclient.GetStationTrackStreamUrl, song_id, wentry_id,
+                               session_token, quality)
 
     def get_all_playlists(self, incremental=False, include_deleted=None, updated_after=None):
 
@@ -2188,7 +2189,7 @@ class Mobileclient(_Base):
         """
         res = self._make_call(mobileclient.ListStationTracks, station_id, num_tracks, [])
 
-        return res.get('data',{'stations':[{}]})['stations'][0]
+        return res.get('data', {'stations': [{}]})['stations'][0]
 
     def get_genres(self, parent_genre_id=None):
         """Retrieves information on Google Music genres.
