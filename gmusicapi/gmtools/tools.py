@@ -398,7 +398,7 @@ class SongMatcher(object):
 
         for query in queries:
             res = self.query_library(query, tie_breaker, auto=auto)
-            
+
             if res:
                 matches += res
 
