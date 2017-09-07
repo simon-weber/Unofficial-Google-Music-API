@@ -457,12 +457,11 @@ class GetUploadSession(MmCall):
             return (True, None)
 
         if 'errorMessage' in res:
-
             try:
                 # This terribly nested structure is Google's doing.
                 error_code = (res['errorMessage']['additionalInfo']
-                          ['uploader_service.GoogleRupioAdditionalInfo']
-                          ['completionInfo']['customerSpecificInfo']['ResponseCode'])
+                              ['uploader_service.GoogleRupioAdditionalInfo']['completionInfo']
+                              ['customerSpecificInfo']['ResponseCode'])
             except KeyError:
                 # Nested structure not as we expect: probably a 503, should retry
                 error_code = 503
