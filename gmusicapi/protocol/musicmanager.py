@@ -463,8 +463,8 @@ class GetUploadSession(MmCall):
                               ['uploader_service.GoogleRupioAdditionalInfo']['completionInfo']
                               ['customerSpecificInfo']['ResponseCode'])
             except KeyError:
-                # Nested structure not as we expect: probably a 503, should retry
-                error_code = 503
+                # The returned nested structure is not as expected: cannot get Response Code
+                error_code = None
 
             got_session = False
 
