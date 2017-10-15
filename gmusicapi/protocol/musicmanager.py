@@ -229,7 +229,7 @@ class UploadMetadata(MmCall):
             extension = 'M4A'
 
         if not hasattr(locker_pb2.Track, extension):
-            raise ValueError("unsupported filetype")
+            raise ValueError("unsupported filetype {0}".format(extension))
 
         track.original_content_type = getattr(locker_pb2.Track, extension)
 
