@@ -12,7 +12,7 @@ addons:
 install:
   - python setup.py sdist --formats=zip -k
   - find ./dist -iname "*.zip" -print0 | xargs -0 pip install
-  - wget https://gist.githubusercontent.com/orf/c36cf78e71b5010561031d470bbd187c/raw/travis-secure-redefine.py
+  - wget https://gist.github.com/simon-weber/8211306/raw/travis-secure-redefine.py
   - pip install flake8==2.4.0
 before_script:
   - if [ "${TRAVIS_PULL_REQUEST}" != "false" ]; then export GROUP='--group=local'; fi
