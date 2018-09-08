@@ -225,6 +225,7 @@ sj_album = {
         'name': {'type': 'string'},
         'albumArtist': {'type': 'string'},
         'albumArtRef': {'type': 'string', 'required': False},
+        'trackCount': {'type': 'integer', 'required': False},
         'albumId': {'type': 'string'},
         'artist': {'type': 'string', 'blank': True},
         'artistId': {'type': 'array', 'items': {'type': 'string', 'blank': True}},
