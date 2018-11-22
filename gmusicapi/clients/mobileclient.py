@@ -5,18 +5,22 @@ from past.builtins import basestring
 from builtins import *  # noqa
 from collections import defaultdict
 import datetime
+from functools import partial
 from operator import itemgetter
+import os
 import re
 from uuid import getnode as getmac
 
 from gmusicapi import session
-from gmusicapi.clients.shared import _Base
+from gmusicapi.appdirs import my_appdirs
+from gmusicapi.clients.shared import _OAuthClient
 from gmusicapi.exceptions import CallFailure, NotSubscribed, InvalidDeviceId
 from gmusicapi.protocol import mobileclient
+from gmusicapi.protocol.shared import authtypes
 from gmusicapi.utils import utils
 
 
-class Mobileclient(_Base):
+class Mobileclient(_OAuthClient):
     """Allows library management and streaming by posing as the
     googleapis.com mobile clients.
 
@@ -25,13 +29,23 @@ class Mobileclient(_Base):
     """
 
     _session_class = session.Mobileclient
+    _authtype = None
+
     FROM_MAC_ADDRESS = object()
+    OAUTH_FILEPATH = os.path.join(my_appdirs.user_data_dir, 'mobileclient.cred')
 
     def __init__(self, debug_logging=True, validate=True, verify_ssl=True):
         super(Mobileclient, self).__init__(self.__class__.__name__,
                                            debug_logging,
                                            validate,
                                            verify_ssl)
+
+    def _make_call(self, protocol, *args, **kwargs):
+        """Switch the required_auth at runtime."""
+        if self._authtype is not None:
+            kwargs['required_auth'] = authtypes(**{self._authtype: True})
+
+        return super(Mobileclient, self)._make_call(protocol, *args, **kwargs)
 
     def _ensure_device_id(self, device_id=None):
         if device_id is None:
@@ -49,15 +63,23 @@ class Mobileclient(_Base):
         return device_id
         """if is_mac:  # Always allow logins with MAC address.
             return device_id
-        devices = [
-            d['id'][2:] if d['id'].startswith('0x') else d['id'].replace(':', '')
-            for d in self.get_registered_devices()
-        ]
-        if device_id in devices:
+
+        device_ids = []
+        for d in self.get_registered_devices():
+            if d['id'].startswith('ios:'):
+                device_ids.append(d['id'])
+            elif d['id'].startswith('0x'):
+                # old android format
+                device_ids.append(d['id'][2:])
+            else:
+                # mac address format
+                device_ids.append(d['id'].replace(':', ''))
+
+        if device_id in device_ids:
             return device_id
         else:
             self.logout()
-            raise InvalidDeviceId('Invalid device_id %s.' % device_id, devices)"""
+            raise InvalidDeviceId('Invalid device_id %s.' % device_id, device_ids)
 
     @property
     def locale(self):
@@ -99,9 +121,78 @@ class Mobileclient(_Base):
 
         return self.session._is_subscribed
 
-    def login(self, email, password, android_id, locale='en_US'):
-        """Authenticates the Mobileclient.
+    def _login(self, session_login, android_id, locale):
+        if android_id is None:
+            raise ValueError("android_id cannot be None.")
+
+        is_mac = android_id is self.FROM_MAC_ADDRESS
+        if is_mac:
+            mac_int = getmac()
+            if (mac_int >> 40) % 2:
+                raise OSError("a valid MAC could not be determined."
+                              " Provide an android_id (and be"
+                              " sure to provide the same one on future runs).")
+
+            device_id = utils.create_mac_string(mac_int)
+            device_id = device_id.replace(':', '')
+        else:
+            device_id = android_id
+
+        if not session_login():
+            self.logger.info("failed to authenticate")
+            return False
+
+        self.android_id = self._validate_device_id(device_id, is_mac=is_mac)
+        self.logger.info("authenticated")
+
+        self.locale = locale
+
+        if self.is_subscribed:
+            self.logger.info("subscribed")
+
+        return True
+
+    def oauth_login(self, device_id, oauth_credentials=OAUTH_FILEPATH, locale='en_US'):
+        """Authenticates the mobileclient with pre-existing OAuth credentials.
         Returns ``True`` on success, ``False`` on failure.
+
+        :param oauth_credentials: ``oauth2client.client.OAuth2Credentials`` or the path to a
+          ``oauth2client.file.Storage`` file. By default, the same default path used by
+          :func:`perform_oauth` is used.
+
+          Endusers will likely call :func:`perform_oauth` once to write
+          credentials to disk and then ignore this parameter.
+
+          This param
+          is mostly intended to allow flexibility for developers of a
+          3rd party service who intend to perform their own OAuth flow
+          (eg on their website).
+        :param device_id: A string of 16 hex digits for Android or "ios:<uuid>" for iOS.
+
+          Alternatively, pass ``Mobileclient.FROM_MAC_ADDRESS`` to attempt to use
+          this machine's MAC address as an id.
+          If a valid MAC address cannot be determined on this machine
+          (which is often the case when running on a VPS), raise OSError.
+
+          This will likely be deprecated, since Google now rejects ids of this form.
+
+        :param locale: `ICU <http://www.localeplanet.com/icu/>`__ locale
+          used to localize certain responses. This must be a locale supported
+          by Android. Defaults to ``'en_US'``.
+        """
+        self._authtype = 'oauth'
+        session_login = partial(self._oauth_login, oauth_credentials)
+        return self._login(session_login, device_id, locale)
+
+    @utils.deprecated('prefer Mobileclient.oauth_login')
+    def login(self, email, password, android_id, locale='en_US'):
+        """Authenticates the Mobileclient using full account credentials.
+        Returns ``True`` on success, ``False`` on failure.
+
+        Behind the scenes, this performs a Google-specific Android login flow
+        with the provided credentials, then trades those for a Google Music auth token.
+        It is deprecated in favor of the more robust :func:`oauth_login`,
+        which performs a normal OAuth flow instead of taking account credentials.
 
         :param email: eg ``'test@gmail.com'`` or just ``'test'``.
         :param password: password or app-specific password for 2-factor users.
@@ -120,41 +211,13 @@ class Mobileclient(_Base):
           used to localize certain responses. This must be a locale supported
           by Android. Defaults to ``'en_US'``.
         """
-        # TODO 2fa
+        self._authtype = 'gpsoauth'
+        session_login = partial(self.session.gpsoauth_login, email, password, android_id)
+        return self._login(session_login, android_id, locale)
 
-        if android_id is None:
-            raise ValueError("android_id cannot be None.")
+    # TODO expose max/page-results, etc for list operations
 
-        is_mac = android_id is self.FROM_MAC_ADDRESS
-        if is_mac:
-            mac_int = getmac()
-            if (mac_int >> 40) % 2:
-                raise OSError("a valid MAC could not be determined."
-                              " Provide an android_id (and be"
-                              " sure to provide the same one on future runs).")
-
-            device_id = utils.create_mac_string(mac_int)
-            device_id = device_id.replace(':', '')
-        else:
-            device_id = android_id
-
-        if not self.session.login(email, password, device_id):
-            self.logger.info("failed to authenticate")
-            return False
-
-        self.android_id = self._validate_device_id(device_id, is_mac=is_mac)
-        self.logger.info("authenticated")
-
-        self.locale = locale
-
-        if self.is_subscribed:
-            self.logger.info("subscribed")
-
-        return True
-
-    # TODO expose max/page-results, updated_after, etc for list operations
-
-    def get_all_songs(self, incremental=False, include_deleted=None):
+    def get_all_songs(self, incremental=False, include_deleted=None, updated_after=None):
         """Returns a list of dictionaries that each represent a song.
 
         :param incremental: if True, return a generator that yields lists
@@ -163,6 +226,8 @@ class Mobileclient(_Base):
           presenting a loading bar to a user.
 
         :param include_deleted: ignored. Will be removed in a future release.
+        :param updated_after: a datetime.datetime; defaults to unix epoch.
+          If provided, deleted songs may be returned.
 
         Here is an example song dictionary::
 
@@ -211,7 +276,8 @@ class Mobileclient(_Base):
 
         """
 
-        tracks = self._get_all_items(mobileclient.ListTracks, incremental)
+        tracks = self._get_all_items(mobileclient.ListTracks, incremental,
+                                     updated_after=updated_after)
 
         return tracks
 
@@ -346,7 +412,9 @@ class Mobileclient(_Base):
     def get_stream_url(self, song_id, device_id, quality='hi'):
         """Returns a url that will point to an mp3 file.
 
-        :param song_id: a single song id
+        :param song_id: A single song id.
+          This can be ``'storeId'`` from a store song, ``'id'`` from an uploaded song, or
+          ``'trackId'`` from a playlist entry.
         :param device_id: (optional) defaults to ``android_id`` from login.
 
           Otherwise, provide a mobile device id as a string.
@@ -390,7 +458,28 @@ class Mobileclient(_Base):
 
         return self._make_call(mobileclient.GetStreamUrl, song_id, device_id, quality)
 
-    def get_all_playlists(self, incremental=False, include_deleted=None):
+    def get_station_track_stream_url(self, song_id, wentry_id, session_token, quality='hi'):
+        """Returns a url that will point to an mp3 file.
+
+        This is only for use by free accounts, and requires a call to
+        :func:`get_station_info` first to provide `wentry_id` and `session_token`.
+        Subscribers should instead use :func:`get_stream_url`.
+
+        :param song_id: a single song id
+        :param wentry_id: a free radio station track entry id (`wentryid` from
+          :func:`get_station_info`)
+        :param session_token: a free radio station session token (`sessionToken` from
+          :func:`get_station_info`)
+        :param quality: (optional) stream bits per second quality
+          One of three possible values, hi: 320kbps, med: 160kbps, low: 128kbps.
+          The default is hi
+
+        """
+        return self._make_call(mobileclient.GetStationTrackStreamUrl, song_id, wentry_id,
+                               session_token, quality)
+
+    def get_all_playlists(self, incremental=False, include_deleted=None, updated_after=None):
+
         """Returns a list of dictionaries that each represent a playlist.
 
         :param incremental: if True, return a generator that yields lists
@@ -398,6 +487,8 @@ class Mobileclient(_Base):
           as they are retrieved from the server. This can be useful for
           presenting a loading bar to a user.
         :param include_deleted: ignored. Will be removed in a future release.
+        :param updated_after: a datetime.datetime; defaults to unix epoch
+          If provided, deleted playlists may be returned.
 
         Here is an example playlist dictionary::
 
@@ -419,7 +510,8 @@ class Mobileclient(_Base):
             }
         """
 
-        playlists = self._get_all_items(mobileclient.ListPlaylists, incremental)
+        playlists = self._get_all_items(mobileclient.ListPlaylists, incremental,
+                                        updated_after=updated_after)
 
         return playlists
 
@@ -597,6 +689,8 @@ class Mobileclient(_Base):
 
         :param playlist_id: the id of the playlist to add to.
         :param song_ids: a list of song ids, or a single song id.
+          These can be ``'storeId'`` from a store song, ``'id'`` from an uploaded song, or
+          ``'trackId'`` from a playlist entry.
 
         Playlists have a maximum size of 1000 songs.
         Calls may fail before that point (presumably) due to
@@ -1565,6 +1659,8 @@ class Mobileclient(_Base):
 
         Returns a list of dictionaries that each represent a radio station.
 
+        This includes any stations listened to recently, which might not be in the library.
+
         :param incremental: if True, return a generator that yields lists
           of at most 1000 stations
           as they are retrieved from the server. This can be useful for
@@ -1589,7 +1685,8 @@ class Mobileclient(_Base):
                     # possible keys:
                     #  albumId, artistId, genreId, trackId, trackLockerId
                 },
-                'id': '69f1bfce-308a-313e-9ed2-e50abe33a25d'
+                'id': '69f1bfce-308a-313e-9ed2-e50abe33a25d',
+                'inLibrary': True
             },
         """
         return self._get_all_items(mobileclient.ListStations, incremental,
@@ -1633,15 +1730,18 @@ class Mobileclient(_Base):
 
         return stations[0].get('tracks', [])
 
-    def search(self, query, max_results=50):
+    def search(self, query, max_results=100):
         """Queries Google Music for content.
 
         :param query: a string keyword to search with. Capitalization and punctuation are ignored.
         :param max_results: Maximum number of items to be retrieved.
           The maximum accepted value is 100. If set higher, results are limited to 10.
+          A value of ``None`` allows up to 1000 results per type but
+          won't return playlist nor situation results.
+          Default is ``100``.
 
         The results are returned in a dictionary with keys:
-        ``album_hits, artist_hits, playlist_hits, podcast_hits,
+        ``album_hits, artist_hits, genre_hits, playlist_hits, podcast_hits,
           situation_hits, song_hits, station_hits, video_hits``
         containing lists of results of that type.
 
@@ -1839,15 +1939,18 @@ class Mobileclient(_Base):
 
         res = self._make_call(mobileclient.Search, query, max_results)
 
-        hits = res.get('entries', [])
+        clusters = res.get('clusterDetail', [])
 
         hits_by_type = defaultdict(list)
-        for hit in hits:
-            hits_by_type[hit['type']].append(hit)
+        for cluster in clusters:
+            hit_type = cluster['cluster']['type']
+            hits = cluster.get('entries', [])
+            hits_by_type[hit_type].extend(hits)
 
         return {'album_hits': hits_by_type['3'],
                 'artist_hits': hits_by_type['2'],
                 'playlist_hits': hits_by_type['4'],
+                'genre_hits': hits_by_type['5'],
                 'podcast_hits': hits_by_type['9'],
                 'situation_hits': hits_by_type['7'],
                 'song_hits': hits_by_type['1'],
@@ -1965,7 +2068,7 @@ class Mobileclient(_Base):
                 if 'userPreferences' in item:
                     if item['userPreferences'].get('subscribed', False):
                         items.append(item)
-                elif not item.get('deleted', False):
+                elif ('updated_after' in kwargs) or (not item.get('deleted', False)):
                     items.append(item)
 
             # Conditional prevents generator from yielding empty
@@ -2067,6 +2170,105 @@ class Mobileclient(_Base):
         """
 
         return self._make_call(mobileclient.GetStoreTrack, store_track_id)
+
+    @utils.enforce_id_param
+    def get_station_info(self, station_id, num_tracks=25):
+        """Retrieves information about a station.
+
+        :param station_id: a station id
+        :param include_tracks: when True, create the ``'tracks'`` substructure
+        :param num_tracks: maximum number of tracks to return
+
+        Returns a dict, eg::
+
+            {
+                'kind':'sj#radioStation',
+                'byline':'By Google Play Music',
+                'name':'Neo Soul',
+                'compositeArtRefs':[
+                    {
+                        'url':'http://lh3.googleusercontent.com/Aa-WBVTbKegp6McwqeHlj6KX5EYHKOBag74uwNl4xIHSv1g7Mi-NkMzwig',
+                        'kind':'sj#imageRef',
+                        'aspectRatio':'2'
+                    }                ],
+                'deleted':False,
+                'enforcementResult':{
+                    'sessionInvalidated':False
+                },
+                'lastModifiedTimestamp':'1497410517701000',
+                'recentTimestamp':'1497410516945000',
+                'clientId':'9e66e89e-50b0-11e7-aaa3-bc5ff4545c4b',
+                'sessionToken':'AFTSR9PtB_PbyqZ3jsnl-PFma4upK1MEtlhVnIlxRNynGalctoJF4TpgzaxymOnk0Gv5DQG7gb_W3eLamPU_Mg1cWylhrowQi1EFMBKWHeDDYWzpU1cEOF-D3c_gnwsBRHIuOetph2veY2Fd-dKVzjOkN6mtidE-XPR2VnpR9PG83wRLVRtJq5593-Vvbu6wjCHD9f23ohxg-ki0tyD3fjFW1463zy63YzN5Aa2SpbvOskEWhwhS3u9ASgEoX08lePE-ZZAq1XtmVvLa8DnDMVb7i95Qhp0dM2it1uruKHH85u7tMYnttbAW4022d0rqrp3ULDKOYMvIIouXH44-bkbKLuVIADiqeNavwTVzcoJxWo4mMKjCaxM=',
+                'tracks':[
+                    {
+                        'albumArtRef':[
+                            {
+                                'url':'http://lh5.ggpht.com/vWRj9DkKZ7cFj-qXoGoBGsv7ngUWdtGNl1SSOdzj2efDwdAs3F0kJ3Xq6zLxKjgv1v3ive5S',
+                                'kind':'sj#imageRef',
+                                'aspectRatio':'1',
+                                'autogen':False
+                            }
+                        ],
+                        'artistId':[
+                            'Atmjrctnubes5zhftrey2xjkzl'
+                        ],
+                        'composer':'',
+                        'year':1996,
+                        'trackAvailableForSubscription':True,
+                        'trackType':'7',
+                        'album':u"Maxwell's Urban Hang Suite",
+                        'title':u"Ascension (Don't Ever Wonder)",
+                        'albumArtist':'Maxwell',
+                        'trackNumber':4,
+                        'discNumber':1,
+                        'albumAvailableForPurchase':False,
+                        'explicitType':'2',
+                        'trackAvailableForPurchase':True,
+                        'storeId':'T6utayayrlyfmpovgj4ulacpat',
+                        'nid':'T6utayayrlyfmpovgj4ulacpat',
+                        'estimatedSize':'13848059',
+                        'albumId':'Bpwzztxynfjwtnrtgiugem3b56e',
+                        'genre':'Neo-Soul',
+                        'kind':'sj#track',
+                        'primaryVideo':{
+                            'kind':'sj#video',
+                            'id':'D7rm9t5S4uE',
+                            'thumbnails':[
+                                {
+                                    'url':'https://i.ytimg.com/vi/D7rm9t5S4uE/mqdefault.jpg',
+                                    'width':320,
+                                    'height':180
+                                }
+                            ]
+                        },
+                        'artist':'Maxwell',
+                        'wentryid':'ec9428eb-2676-4e92-901d-2de9a72fe581',
+                        'durationMillis':'346000'
+                    }
+                ],
+                'seed':{
+                    'kind':'sj#radioSeed',
+                    'curatedStationId':'L3lu7bpcqtd3e7pa7w37rf7gdu',
+                    'seedType':'9'
+                },
+                'skipEventHistory':[
+                ],
+                'inLibrary':False,
+                'imageUrls':[
+                    {
+                        'url':'http://lh3.googleusercontent.com/iceDDsQjQ683AD4w21WWlekg115Ixy_kMTivkFJTjo3w7vuW4-SSs3F3KQOaR8qoI-QYVuOQoA',
+                        'kind':'sj#imageRef',
+                        'aspectRatio':'1',
+                        'autogen':False
+                    }
+                ],
+                'id':'1a9ec96c-6c98-3c43-b123-9e2743203f5d'
+            }
+
+        """
+        res = self._make_call(mobileclient.ListStationTracks, station_id, num_tracks, [])
+
+        return res.get('data', {'stations': [{}]})['stations'][0]
 
     def get_genres(self, parent_genre_id=None):
         """Retrieves information on Google Music genres.

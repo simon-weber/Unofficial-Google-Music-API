@@ -5,9 +5,50 @@ History
 
 As of 1.0.0, `semantic versioning <http://semver.org/>`__ is used.
 
-10.1.3
+11.0.5-rc.1
 ++++++
 released ...
+
+11.0.4
+++++++
+released 2018-11-19
+
+- fix a number of bugs with Mobileclient.search
+
+11.0.3
+++++++
+released 2018-09-19
+
+- fix an "__init__() takes at most 4..." warning coming from oauth2client
+
+11.0.2
+++++++
+released 2018-09-09
+
+- fix validation of "ios:..." format device ids
+- add inLibrary field to station docs
+
+11.0.1
+++++++
+released 2018-03-18
+
+- update schemas
+
+11.0.0
+++++++
+released 2017-12-09
+
+- breaking: list calls now default to max_results=None, increasing the default number of results from 100 to 999
+- add updated_after param to song/playlist listing to support differential updates
+- add support for free radio stations
+- add filepath+extension to unsupported file exception message
+- fix "I'm Feeling Lucky" station never refreshing its seed
+- fix crashes caused by some 503s during uploading
+- fix gmtools for https://github.com/simon-weber/Google-Music-Playlist-Importer
+- fix AAC and ALAC content type upload detection
+- blacklist requests 2.8.2
+- improve id documentation
+- update schemas
 
 10.1.2
 ++++++

@@ -22,6 +22,7 @@ from gmusicapi.exceptions import ValidationException, CallFailure
 from gmusicapi.protocol.shared import Call, authtypes
 from gmusicapi.utils import utils
 
+
 # URL for sj service
 sj_url = 'https://mclients.googleapis.com/sj/v2.5/'
 sj_stream_url = 'https://mclients.googleapis.com/music/'
@@ -109,7 +110,7 @@ sj_track = {
                          },
         'discNumber': {'type': 'integer'},
         'totalDiscCount': {'type': 'integer', 'required': False},
-        'estimatedSize': {'type': 'string'},
+        'estimatedSize': {'type': 'string', 'required': False},
         'trackType': {'type': 'string', 'required': False},
         'storeId': {'type': 'string', 'required': False},
         'albumId': {'type': 'string'},
@@ -124,7 +125,6 @@ sj_track = {
         'rating': {'type': 'string', 'required': False},
         'genre': {'type': 'string', 'required': False},
         'trackAvailableForSubscription': {'type': 'boolean', 'required': False},
-        'contentType': {'type': 'string'},
         # Only available when rating differs from '0'
         # when using :change_song_metadata:, specifying this value will cause all clients to
         # properly update (web/mobile). As value int(round(time.time() * 1000000)) works quite well
@@ -328,6 +328,9 @@ sj_station_seed = {
     }
 }
 
+sj_station_track = sj_track.copy()
+sj_station_track['properties']['wentryid'] = {'type': 'string', 'required': False}
+
 sj_station = {
     'type': 'object',
     'additionalProperties': False,
@@ -343,6 +346,8 @@ sj_station = {
                             'required': False},  # for public
         'clientId': {'type': 'string',
                      'required': False},  # for public
+        'sessionToken': {'type': 'string',
+                         'required': False},  # for free radios
         'skipEventHistory': {'type': 'array'},  # TODO: What's in this array?
         'seed': sj_station_seed,
         'stationSeeds': {'type': 'array',
@@ -350,7 +355,7 @@ sj_station = {
         'id': {'type': 'string',
                'required': False},  # for public
         'description': {'type': 'string', 'required': False},
-        'tracks': {'type': 'array', 'required': False, 'items': sj_track},
+        'tracks': {'type': 'array', 'required': False, 'items': sj_station_track},
         'imageUrls': {'type': 'array',
                       'required': False,
                       'items': sj_image
@@ -590,6 +595,16 @@ sj_situation['properties']['situations'] = {
     'items': sj_situation
 }
 
+sj_search_result_cluster_info = {
+    'type': 'object',
+    'additionalProperties': False,
+    'properties': {
+        'category': {'type': 'string'},
+        'id': {'type': 'string'},
+        'type': {'type': 'string'}
+    }
+}
+
 sj_search_result = {
     'type': 'object',
     'additionalProperties': False,
@@ -599,10 +614,16 @@ sj_search_result = {
         'best_result': {'type': 'boolean', 'required': False},
         'navigational_result': {'type': 'boolean', 'required': False},
         'navigational_confidence': {'type': 'number', 'required': False},
+        'cluster': {
+            'type': 'array',
+            'required': False,
+            'items': sj_search_result_cluster_info
+        },
         'artist': sj_artist.copy(),
         'album': sj_album.copy(),
         'track': sj_track.copy(),
         'playlist': sj_playlist.copy(),
+        'genre': sj_genre.copy(),
         'series': sj_podcast_series.copy(),
         'station': sj_station.copy(),
         'situation': sj_situation.copy(),
@@ -614,16 +635,32 @@ sj_search_result['properties']['artist']['required'] = False
 sj_search_result['properties']['album']['required'] = False
 sj_search_result['properties']['track']['required'] = False
 sj_search_result['properties']['playlist']['required'] = False
+sj_search_result['properties']['genre']['required'] = False
 sj_search_result['properties']['series']['required'] = False
 sj_search_result['properties']['station']['required'] = False
 sj_search_result['properties']['situation']['required'] = False
 sj_search_result['properties']['youtube_video']['required'] = False
 
+sj_search_result_cluster = {
+    'type': 'object',
+    'additionalProperties': False,
+    'properties': {
+        'cluster': {'type': sj_search_result_cluster_info},
+        'displayName': {'type': 'string', 'required': False},
+        'entries': {
+            'type': 'array',
+            'items': sj_search_result,
+            'required': False
+        },
+        'resultToken': {'type': 'string', 'required': False}
+    }
+}
+
 
 class McCall(Call):
     """Abstract base for mobile client calls."""
 
-    required_auth = authtypes(oauth=True)
+    required_auth = authtypes(gpsoauth=True)
 
     # validictory schema for the response
     _res_schema = utils.NotImplementedField
@@ -860,22 +897,17 @@ class Search(McCall):
 
     # The result types returned are requested in the `ct` parameter.
     # Free account search is restricted so may not contain hits for all result types.
-    # 1: Song, 2: Artist, 3: Album, 4: Playlist, 6: Station, 7: Situation, 8: Video
-    # 9: Podcast Series
-    static_params = {'ct': '1,2,3,4,6,7,8,9'}
+    # 1: Song, 2: Artist, 3: Album, 4: Playlist, 5: Genre,
+    # 6: Station, 7: Situation, 8: Video, 9: Podcast Series
+    static_params = {'ct': '1,2,3,4,5,6,7,8,9', 'ic': True}
 
     _res_schema = {
         'type': 'object',
         'additionalProperties': False,
         'properties': {
             'kind': {'type': 'string'},
-            'clusterOrder': {'type': 'array',
-                             'items': {'type': 'string'},
-                             'required': False},
-            'entries': {'type': 'array',
-                        'items': sj_search_result,
-                        'required': False},
-            'suggestedQuery': {'type': 'string', 'required': False}
+            'clusterDetail': {'type': 'array',
+                              'items': {'type': sj_search_result_cluster}}
         },
     }
 
@@ -895,6 +927,46 @@ class ListTracks(McListCall):
 class GetStreamUrl(McStreamCall):
     static_method = 'GET'
     static_url = sj_stream_url + 'mplay'
+
+
+class GetStationTrackStreamUrl(McStreamCall):
+    static_method = 'GET'
+    static_url = sj_stream_url + 'wplay'
+
+    @staticmethod
+    def dynamic_headers(item_id, wentry_id, session_token, quality):
+        return {'X-Device-ID': ''}
+
+    @classmethod
+    def dynamic_params(cls, song_id, wentry_id, session_token, quality):
+        sig, salt = cls.get_signature(song_id)
+
+        params = {}
+        if song_id[0] == 'T':
+            # all access
+            params['mjck'] = song_id
+        else:
+            params['songid'] = song_id
+
+        params['sesstok'] = session_token.encode('utf-8')
+        params['wentryid'] = wentry_id.encode('utf-8')
+        params['tier'] = 'fr'
+
+        params.update(
+            {'audio_formats': 'mp3',
+             'opt': quality,
+             'net': 'mob',
+             'pt': 'a',
+             'slt': salt,
+             'sig': sig,
+             })
+
+        return params
+
+    @staticmethod
+    def parse_response(response):
+        res = json.loads(response.text)
+        return res['location']
 
 
 class ListPlaylists(McListCall):

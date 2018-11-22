@@ -26,7 +26,8 @@ That said, it's actively maintained, and powers a bunch of cool projects:
 -  alternate clients, including
    `one designed for the visually impaired <https://github.com/chrisnorman7/gmp3>`__,
    `a web-based jukebox which ships with its own server <https://github.com/chrisnorman7/jukebox>`__,
-   `a command line client <https://github.com/christopher-dg/pmcli>`__,
+   `command line <https://github.com/christopher-dg/pmcli>`__
+   `clients <https://github.com/and3rson/clay>`__,
    `a FUSE filesystem <https://github.com/EnigmaCurry/GMusicFS>`__,
    and `an Alexa skill <https://github.com/stevenleeg/geemusic>`__
 -  library management tools for
@@ -38,7 +39,7 @@ That said, it's actively maintained, and powers a bunch of cool projects:
    `gmusicprocurator <https://github.com/malept/gmusicprocurator>`__,
    as well as plugins for 
    `Mopidy <https://github.com/hechtus/mopidy-gmusic>`__,
-   `Squeezebox <https://github.com/hechtus/squeezebox-googlemusic>`__ and
+   `Squeezebox <https://github.com/squeezebox-googlemusic/squeezebox-googlemusic>`__ and
    `Tizonia <https://github.com/tizonia/tizonia-openmax-il>`__.
 -  enhancements like `autoplaylists / smart playlists <https://autoplaylists.simon.codes>`__
 
@@ -56,8 +57,13 @@ in touch, either `drop by #gmusicapi on Freenode
 Status and updates
 ------------------
 
-.. image:: https://travis-ci.org/simon-weber/gmusicapi.png?branch=develop
+|build_status| |repominder_status|
+
+.. |build_status| image:: https://travis-ci.org/simon-weber/gmusicapi.png?branch=develop
         :target: https://travis-ci.org/simon-weber/gmusicapi
+        
+.. |repominder_status| image:: https://img.shields.io/badge/dynamic/json.svg?label=release&query=%24.status&maxAge=43200&uri=https%3A%2F%2Fwww.repominder.com%2Fbadge%2FeyJyZXBvX2lkIjogMTEsICJ1c2VyX2lkIjogMn0%3D%2F&link=https%3A%2F%2Fwww.repominder.com%2F
+        :target: https://www.repominder.com
 
 * February 2016: Python 3 support!
 * September 2015: Google switched to a new music uploading endpoint, breaking uploading for outdated versions of gmusicapi.
@@ -68,8 +74,3 @@ Status and updates
 
 For fine-grained development updates, follow me on Twitter:
 `@simonmweber <https://twitter.com/simonmweber>`__.
-
-------------
-
-Copyright 2015 `Simon Weber <http://www.simonmweber.com>`__.
-Licensed under the 3-clause BSD. See LICENSE.
