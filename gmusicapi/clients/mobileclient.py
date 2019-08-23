@@ -62,6 +62,15 @@ class Mobileclient(_OAuthClient):
         if is_mac:  # Always allow logins with MAC address.
             return device_id
 
+        device_ids = self._prepare_device_ids()
+        if device_id in device_ids:
+            return device_id
+        else:
+            self.logout()
+            raise InvalidDeviceId('Invalid device_id %s.' % device_id, device_ids)
+
+    def _prepare_device_ids(self):
+        """Returns a prepared list of registered devices"""
         device_ids = []
         for d in self.get_registered_devices():
             if d['id'].startswith('ios:'):
@@ -72,12 +81,7 @@ class Mobileclient(_OAuthClient):
             else:
                 # mac address format
                 device_ids.append(d['id'].replace(':', ''))
-
-        if device_id in device_ids:
-            return device_id
-        else:
-            self.logout()
-            raise InvalidDeviceId('Invalid device_id %s.' % device_id, device_ids)
+        return device_ids
 
     @property
     def locale(self):
@@ -2326,3 +2330,35 @@ class Mobileclient(_OAuthClient):
 
         # An invalid parent genre won't respond with a genres key.
         return res.get('genres', [])
+
+    def get_device_ids(self, oauth_credentials=OAUTH_FILEPATH):
+        """Returns a list of registered devices for current credentials
+        :param oauth_credentials: ``oauth2client.client.OAuth2Credentials`` or the path to a
+          ``oauth2client.file.Storage`` file. By default, the same default path used by
+          :func:`perform_oauth` is used.
+
+          Endusers will likely call :func:`perform_oauth` once to write
+          credentials to disk and then ignore this parameter.
+
+          This param
+          is mostly intended to allow flexibility for developers of a
+          3rd party service who intend to perform their own OAuth flow
+          (eg on their website).
+
+        Example to usage:
+            api = Mobileclient()
+
+            with open('credential.pickle', 'rb') as handle:
+                credential = pickle.load(handle)
+
+            device_ids = api.get_device_ids(credential)
+            print(device_ids)
+        """
+        self._authtype = 'oauth'
+        session_login = partial(self._oauth_login, oauth_credentials)
+
+        if not session_login():
+            self.logger.info("failed to authenticate")
+            return False
+
+        return self._prepare_device_ids()
