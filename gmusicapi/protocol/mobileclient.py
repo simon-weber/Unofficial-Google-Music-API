@@ -661,7 +661,7 @@ class McCall(Call):
 
     required_auth = authtypes(gpsoauth=True)
 
-    # schema for the response
+    # Schema for the response
     _res_schema = utils.NotImplementedField
 
     @classmethod
