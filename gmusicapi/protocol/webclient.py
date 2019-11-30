@@ -3,7 +3,6 @@
 """Calls made by the web client."""
 from __future__ import print_function, division, absolute_import, unicode_literals
 from six import raise_from
-from builtins import *  # noqa
 
 import base64
 import copy
@@ -12,7 +11,7 @@ import random
 import string
 from hashlib import sha1
 
-import validictory
+import fastjsonschema
 
 import json
 from gmusicapi.exceptions import CallFailure, ValidationException
@@ -64,7 +63,7 @@ class WcCall(Call):
     def validate(cls, response, msg):
         """Use validictory and a static schema (stored in cls._res_schema)."""
         try:
-            return validictory.validate(msg, cls._res_schema)
+            return fastjsonschema.validate(msg, cls._res_schema)
         except ValueError as e:
             raise_from(ValidationException(str(e)), e)
 
