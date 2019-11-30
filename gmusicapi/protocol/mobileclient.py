@@ -661,12 +661,12 @@ class McCall(Call):
 
     required_auth = authtypes(gpsoauth=True)
 
-    # validictory schema for the response
+    # schema for the response
     _res_schema = utils.NotImplementedField
 
     @classmethod
     def validate(cls, response, msg):
-        """Use validictory and a static schema (stored in cls._res_schema)."""
+        """Use fastjsonschema and a static schema (stored in cls._res_schema)."""
         try:
             return fastjsonschema.validate(msg, cls._res_schema)
         except ValueError as e:
