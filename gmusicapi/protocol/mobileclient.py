@@ -4,7 +4,6 @@
 """Calls made by the mobile client."""
 from __future__ import print_function, division, absolute_import, unicode_literals
 from six import raise_from
-from builtins import *  # noqa
 
 import base64
 import calendar
@@ -15,7 +14,7 @@ import hmac
 import time
 from uuid import uuid1
 
-import validictory
+import fastjsonschema
 
 import json
 from gmusicapi.exceptions import ValidationException, CallFailure
@@ -662,14 +661,14 @@ class McCall(Call):
 
     required_auth = authtypes(gpsoauth=True)
 
-    # validictory schema for the response
+    # Schema for the response
     _res_schema = utils.NotImplementedField
 
     @classmethod
     def validate(cls, response, msg):
-        """Use validictory and a static schema (stored in cls._res_schema)."""
+        """Use fastjsonschema and a static schema (stored in cls._res_schema)."""
         try:
-            return validictory.validate(msg, cls._res_schema)
+            return fastjsonschema.validate(msg, cls._res_schema)
         except ValueError as e:
             raise_from(ValidationException(str(e)), e)
 
