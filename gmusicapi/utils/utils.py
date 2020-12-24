@@ -61,7 +61,7 @@ class DynamicClientLogger:
     There can be multiple clients, so we can't just use a globally-available
     logger.
 
-    Instead of refactoring every function to receieve a logger, we introspect
+    Instead of refactoring every function to receive a logger, we introspect
     the callstack at runtime to figure out who's calling us, then use their
     logger.
 
